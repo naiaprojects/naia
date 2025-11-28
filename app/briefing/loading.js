@@ -1,6 +1,5 @@
 // app/briefing/loading.js
 export default function Loading() {
-  // Anda bisa membuat spinner yang lebih menarik jika mau
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">

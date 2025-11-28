@@ -4,28 +4,42 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-// ... (salin seluruh objek `packages` dan fungsi lainnya dari file page.js lama Anda ke sini) ...
 const packages = {
-  'blog-portfolio': { /* ... */ },
-  // ... dst
+  // ... (salin seluruh objek packages dari kode Anda)
 };
 
 const BriefingForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const packageId = searchParams.get('package');
-  // ... (salin seluruh sisa logika komponen dari file page.js lama Anda ke sini) ...
   const [selectedPackage, setSelectedPackage] = useState(null);
-  const [formData, setFormData] = useState({ /* ... */ });
-  // ... dst
+  // ... (salin seluruh state dan fungsi lainnya dari kode Anda)
 
-  // Tidak perlu if (!selectedPackage) check di sini, karena Suspense akan menanganinya
+  useEffect(() => {
+    if (packageId && packages[packageId]) {
+      setSelectedPackage(packages[packageId]);
+    }
+  }, [packageId]);
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      {/* ... (salin seluruh JSX return dari file page.js lama Anda ke sini) ... */}
-    </div>
-  );
+  // ... (salin seluruh fungsi handleChange, validateForm, dll)
+
+  if (!selectedPackage) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Paket tidak ditemukan</h2>
+          <button 
+            className="bg-primary text-white px-6 py-2 rounded-full hover:bg-primarys transition"
+            onClick={() => router.push('/')}
+          >
+            Kembali ke Beranda
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ... (salin seluruh return JSX dari kode Anda)
 };
 
 export default BriefingForm;
