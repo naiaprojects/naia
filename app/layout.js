@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Jasa Template Blogspot #1 Indonesia - NaiaGrafika.web.id",
+  title: "Jasa Custom Blogspot #1 Indonesia - NaiaGrafika.web.id",
   description: "Jasa desain & pembuatan web Blogspot custom. Percayakan website Anda kepada ahlinya, Naia.web.id",
   
   // Verification tags
