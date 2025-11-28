@@ -1,71 +1,40 @@
+// components/Portfolio.js
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Portfolio() {
   const [showModal, setShowModal] = useState(false);
   const [modalData, setModalData] = useState({ image: '', title: '', link: '' });
   const [showAll, setShowAll] = useState(false);
+  
+  // State untuk data, loading, dan error
+  const [portfolioData, setPortfolioData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Data portfolio lengkap - tambahkan sebanyak yang Anda mau
-  const allPortfolio = [
-    {
-      image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgouYHCex2psiuMwwKoMjuJD83-bKymTyxoYwspg1fTrB9ad5FEcLcOyAbuJ28yHuvKFbfZN9vOv4QNcl9OovQP5Q9TLMhMfryurclVLLgpyNDrpjSDpohp_jzdyxCx7YseJlTSLIj6lqqnJNSUP-39i0lznMc_VkAURaqfBxtD-jSNjmrZaDvYMfR9Ldo/s1080/2025-04.png',
-      alt: 'KangLogo.com',
-      title: 'KangLogo.com',
-      link: '#'
-    },
-    {
-      image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgouYHCex2psiuMwwKoMjuJD83-bKymTyxoYwspg1fTrB9ad5FEcLcOyAbuJ28yHuvKFbfZN9vOv4QNcl9OovQP5Q9TLMhMfryurclVLLgpyNDrpjSDpohp_jzdyxCx7YseJlTSLIj6lqqnJNSUP-39i0lznMc_VkAURaqfBxtD-jSNjmrZaDvYMfR9Ldo/s1080/2025-04.png',
-      alt: 'Project 2',
-      title: 'E-Commerce Website',
-      link: '#'
-    },
-    {
-      image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgouYHCex2psiuMwwKoMjuJD83-bKymTyxoYwspg1fTrB9ad5FEcLcOyAbuJ28yHuvKFbfZN9vOv4QNcl9OovQP5Q9TLMhMfryurclVLLgpyNDrpjSDpohp_jzdyxCx7YseJlTSLIj6lqqnJNSUP-39i0lznMc_VkAURaqfBxtD-jSNjmrZaDvYMfR9Ldo/s1080/2025-04.png',
-      alt: 'Project 3',
-      title: 'Company Profile',
-      link: '#'
-    },
-    {
-      image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgouYHCex2psiuMwwKoMjuJD83-bKymTyxoYwspg1fTrB9ad5FEcLcOyAbuJ28yHuvKFbfZN9vOv4QNcl9OovQP5Q9TLMhMfryurclVLLgpyNDrpjSDpohp_jzdyxCx7YseJlTSLIj6lqqnJNSUP-39i0lznMc_VkAURaqfBxtD-jSNjmrZaDvYMfR9Ldo/s1080/2025-04.png',
-      alt: 'Project 4',
-      title: 'Landing Page',
-      link: '#'
-    },
-    {
-      image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgouYHCex2psiuMwwKoMjuJD83-bKymTyxoYwspg1fTrB9ad5FEcLcOyAbuJ28yHuvKFbfZN9vOv4QNcl9OovQP5Q9TLMhMfryurclVLLgpyNDrpjSDpohp_jzdyxCx7YseJlTSLIj6lqqnJNSUP-39i0lznMc_VkAURaqfBxtD-jSNjmrZaDvYMfR9Ldo/s1080/2025-04.png',
-      alt: 'Project 5',
-      title: 'Blog Design',
-      link: '#'
-    },
-    {
-      image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgouYHCex2psiuMwwKoMjuJD83-bKymTyxoYwspg1fTrB9ad5FEcLcOyAbuJ28yHuvKFbfZN9vOv4QNcl9OovQP5Q9TLMhMfryurclVLLgpyNDrpjSDpohp_jzdyxCx7YseJlTSLIj6lqqnJNSUP-39i0lznMc_VkAURaqfBxtD-jSNjmrZaDvYMfR9Ldo/s1080/2025-04.png',
-      alt: 'Project 6',
-      title: 'Portfolio Website',
-      link: '#'
-    },
-    {
-      image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgouYHCex2psiuMwwKoMjuJD83-bKymTyxoYwspg1fTrB9ad5FEcLcOyAbuJ28yHuvKFbfZN9vOv4QNcl9OovQP5Q9TLMhMfryurclVLLgpyNDrpjSDpohp_jzdyxCx7YseJlTSLIj6lqqnJNSUP-39i0lznMc_VkAURaqfBxtD-jSNjmrZaDvYMfR9Ldo/s1080/2025-04.png',
-      alt: 'Project 7',
-      title: 'Online Store',
-      link: '#'
-    },
-    {
-      image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgouYHCex2psiuMwwKoMjuJD83-bKymTyxoYwspg1fTrB9ad5FEcLcOyAbuJ28yHuvKFbfZN9vOv4QNcl9OovQP5Q9TLMhMfryurclVLLgpyNDrpjSDpohp_jzdyxCx7YseJlTSLIj6lqqnJNSUP-39i0lznMc_VkAURaqfBxtD-jSNjmrZaDvYMfR9Ldo/s1080/2025-04.png',
-      alt: 'Project 8',
-      title: 'Restaurant Website',
-      link: '#'
-    },
-    {
-      image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgouYHCex2psiuMwwKoMjuJD83-bKymTyxoYwspg1fTrB9ad5FEcLcOyAbuJ28yHuvKFbfZN9vOv4QNcl9OovQP5Q9TLMhMfryurclVLLgpyNDrpjSDpohp_jzdyxCx7YseJlTSLIj6lqqnJNSUP-39i0lznMc_VkAURaqfBxtD-jSNjmrZaDvYMfR9Ldo/s1080/2025-04.png',
-      alt: 'Project 9',
-      title: 'Agency Website',
-      link: '#'
-    }
-  ];
+  // Gunakan useEffect untuk mengambil data saat komponen dimuat
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/portfolio');
+        if (!response.ok) {
+          throw new Error('Failed to fetch portfolio data');
+        }
+        const data = await response.json();
+        setPortfolioData(data);
+      } catch (error) {
+        console.error(error);
+        // Opsional: Set data kosong jika terjadi error
+        setPortfolioData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []); // Array kosong berarti efek ini hanya berjalan sekali saat mount
 
   // Tampilkan 3 pertama atau semua
-  const displayedPortfolio = showAll ? allPortfolio : allPortfolio.slice(0, 3);
+  const displayedPortfolio = showAll ? portfolioData : portfolioData.slice(0, 3);
 
   const openModal = (item) => {
     setModalData(item);
@@ -76,9 +45,20 @@ export default function Portfolio() {
     setShowModal(false);
   };
 
+  // Tampilkan loading jika data belum siap
+  if (isLoading) {
+    return (
+      <section className="py-8 sm:py-12" id="porto">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+          <p>Memuat portofolio...</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-8 sm:py-12" id="porto">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="pb-6 sm:pb-16">
           <h1 className="max-w-2xl mx-auto text-center font-bold text-4xl text-primary mb-5 md:text-6xl leading-[50px]">
             Portofolio
@@ -110,16 +90,18 @@ export default function Portfolio() {
           ))}
         </div>
 
-        <div className="mt-16">
-          <div className="flex justify-center gap-2">
-            <button
-              onClick={() => setShowAll(!showAll)}
-              className="inline-block rounded-full px-6 py-3 text-md text-white transition bg-gradient-to-r from-primary to-orange-600 hover:from-orange-700 hover:to-red-700"
-            >
-              {showAll ? 'Tampilkan Lebih Sedikit' : 'Semua Portofolio'}
-            </button>
+        {portfolioData.length > 3 && (
+          <div className="mt-16">
+            <div className="flex justify-center gap-2">
+              <button
+                onClick={() => setShowAll(!showAll)}
+                className="inline-block rounded-full px-6 py-3 text-md text-white transition bg-gradient-to-r from-primary to-orange-600 hover:from-orange-700 hover:to-red-700"
+              >
+                {showAll ? 'Tampilkan Lebih Sedikit' : 'Semua Portofolio'}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center">
