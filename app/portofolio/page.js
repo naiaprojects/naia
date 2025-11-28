@@ -89,11 +89,7 @@ export default function PortofolioPage() {
           {/* Back Button */}
           <div className="mt-12 text-center">
             
-              href="/"
-              className="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 px-8 py-3 rounded-full font-medium transition"
-            >
-              ← Kembali ke Beranda
-            </a>
+            <a href="/" className="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 px-8 py-3 rounded-full font-medium transition">  ← Kembali ke Beranda</a>
           </div>
         </div>
       </main>
