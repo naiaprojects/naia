@@ -240,7 +240,7 @@ export default function FooterManagementPage() {
         <h1 className="text-3xl font-bold">Footer Management</h1>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+          className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary"
         >
           {showForm ? 'Batal' : 'Tambah Item'}
         </button>
@@ -258,7 +258,7 @@ export default function FooterManagementPage() {
           <button
             onClick={() => setActiveTab('footer')}
             className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'footer'
-              ? 'border-blue-500 text-blue-600'
+              ? 'border-primary text-primary'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
           >
@@ -267,7 +267,7 @@ export default function FooterManagementPage() {
           <button
             onClick={() => setActiveTab('social')}
             className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'social'
-              ? 'border-blue-500 text-blue-600'
+              ? 'border-primary text-primary'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
           >
@@ -336,7 +336,7 @@ export default function FooterManagementPage() {
               <label className="text-sm font-medium text-gray-700">Aktif</label>
             </div>
             <div className="flex gap-3">
-              <button type="submit" className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+              <button type="submit" className="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-secondary">
                 {editItem ? 'Update' : 'Simpan'}
               </button>
               <button type="button" onClick={resetForm} className="px-6 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400">
@@ -404,7 +404,7 @@ export default function FooterManagementPage() {
               <label className="text-sm font-medium text-gray-700">Aktif</label>
             </div>
             <div className="flex gap-3">
-              <button type="submit" className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+              <button type="submit" className="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-secondary">
                 {editItem ? 'Update' : 'Simpan'}
               </button>
               <button type="button" onClick={resetForm} className="px-6 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400">

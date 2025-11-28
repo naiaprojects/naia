@@ -120,7 +120,7 @@ export default function SettingsPage() {
           <button
             onClick={() => setActiveTab('site')}
             className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'site'
-              ? 'border-blue-500 text-blue-600'
+              ? 'border-primary text-primary'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
           >
@@ -129,7 +129,7 @@ export default function SettingsPage() {
           <button
             onClick={() => setActiveTab('cta')}
             className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'cta'
-              ? 'border-blue-500 text-blue-600'
+              ? 'border-primary text-primary'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
           >
@@ -138,7 +138,7 @@ export default function SettingsPage() {
           <button
             onClick={() => setActiveTab('meta')}
             className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'meta'
-              ? 'border-blue-500 text-blue-600'
+              ? 'border-primary text-primary'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
           >
@@ -361,7 +361,7 @@ export default function SettingsPage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-200"
+            className="w-full bg-primary text-white py-3 rounded-lg hover:bg-secondary disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-200"
           >
             {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
           </button>

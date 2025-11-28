@@ -163,7 +163,7 @@ export default function FAQManagementPage() {
                 <h1 className="text-3xl font-bold">FAQ Management</h1>
                 <button
                     onClick={() => setShowForm(!showForm)}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                    className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary"
                 >
                     {showForm ? 'Batal' : 'Tambah FAQ'}
                 </button>
@@ -228,7 +228,7 @@ export default function FAQManagementPage() {
                         <div className="flex gap-3">
                             <button
                                 type="submit"
-                                className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+                                className="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-secondary"
                             >
                                 {editItem ? 'Update' : 'Simpan'}
                             </button>

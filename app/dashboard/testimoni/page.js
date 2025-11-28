@@ -236,7 +236,7 @@ export default function TestimoniManagementPage() {
                 <h1 className="text-3xl font-bold">Testimoni Management</h1>
                 <button
                     onClick={() => setShowForm(!showForm)}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                    className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary"
                 >
                     {showForm ? 'Batal' : 'Tambah Testimoni'}
                 </button>
@@ -321,7 +321,7 @@ export default function TestimoniManagementPage() {
                             <button
                                 type="submit"
                                 disabled={uploading}
-                                className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+                                className="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-secondary disabled:bg-gray-400"
                             >
                                 {uploading ? 'Uploading...' : editItem ? 'Update' : 'Simpan'}
                             </button>

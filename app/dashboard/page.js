@@ -212,7 +212,7 @@ export default function DashboardPage() {
       {/* Welcome Message */}
       <div className="bg-gradient-to-r from-primary to-secondary rounded-lg shadow-md p-6 text-white mb-6">
         <h2 className="text-2xl font-bold mb-2">Selamat Datang di Admin Panel! 👋</h2>
-        <p className="text-blue-100">
+        <p className="text-white">
           Kelola website Anda dengan mudah. Monitor pesanan, kelola konten, dan lihat statistik pengunjung dalam satu tempat.
         </p>
       </div>
@@ -234,10 +234,10 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+          <div className="bg-gradient-to-br from-primary to-secondary rounded-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm font-medium">Total Pesanan {getPeriodLabel()}</p>
+                <p className="text-white text-sm font-medium">Total Pesanan {getPeriodLabel()}</p>
                 <p className="text-4xl font-bold mt-2">{orderStats.count}</p>
               </div>
               <div className="bg-white bg-opacity-20 p-4 rounded-full">
@@ -312,13 +312,13 @@ export default function DashboardPage() {
               <p className="text-gray-500 text-sm font-medium">Total Portfolio</p>
               <p className="text-3xl font-bold text-gray-800 mt-2">{contentStats.portfolio}</p>
             </div>
-            <div className="bg-purple-100 text-purple-600 p-3 rounded-full">
+            <div className="bg-primary text-white p-3 rounded-full">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
           </div>
-          <Link href="/dashboard/portfolio" className="text-purple-600 hover:text-purple-700 text-sm font-medium">
+          <Link href="/dashboard/portfolio" className="text-primary hover:text-secondary text-sm font-medium">
             Kelola Portfolio →
           </Link>
         </div>
@@ -329,13 +329,13 @@ export default function DashboardPage() {
               <p className="text-gray-500 text-sm font-medium">Total Testimoni</p>
               <p className="text-3xl font-bold text-gray-800 mt-2">{contentStats.testimonials}</p>
             </div>
-            <div className="bg-orange-100 text-orange-600 p-3 rounded-full">
+            <div className="bg-primary text-white p-3 rounded-full">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
               </svg>
             </div>
           </div>
-          <Link href="/dashboard/testimoni" className="text-orange-600 hover:text-orange-700 text-sm font-medium">
+          <Link href="/dashboard/testimoni" className="text-primary hover:text-secondary text-sm font-medium">
             Kelola Testimoni →
           </Link>
         </div>
@@ -346,13 +346,13 @@ export default function DashboardPage() {
               <p className="text-gray-500 text-sm font-medium">Rekening Bank Aktif</p>
               <p className="text-3xl font-bold text-gray-800 mt-2">{contentStats.bankAccounts}</p>
             </div>
-            <div className="bg-blue-100 text-blue-600 p-3 rounded-full">
+            <div className="bg-primary text-white p-3 rounded-full">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
               </svg>
             </div>
           </div>
-          <Link href="/dashboard/bank-accounts" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+          <Link href="/dashboard/bank-accounts" className="text-primary hover:text-secondary text-sm font-medium">
             Kelola Bank →
           </Link>
         </div>
@@ -361,27 +361,27 @@ export default function DashboardPage() {
       {/* Visitor Statistics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Statistik Pengunjung</h2>
+          <h2 className="text-xl font-bold text-slate-700 mb-4">Statistik Pengunjung</h2>
           <div className="space-y-3">
-            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg">
+            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg">
               <span className="text-gray-700 font-medium">Hari Ini</span>
-              <span className="text-2xl font-bold text-blue-600">{visitorStats.today.toLocaleString()}</span>
+              <span className="text-2xl font-bold text-slate-600">{visitorStats.today.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-green-50 to-green-100 rounded-lg">
+            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg">
               <span className="text-gray-700 font-medium">Bulan Ini</span>
-              <span className="text-2xl font-bold text-green-600">{visitorStats.thisMonth.toLocaleString()}</span>
+              <span className="text-2xl font-bold text-slate-600">{visitorStats.thisMonth.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg">
+            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg">
               <span className="text-gray-700 font-medium">Tahun Ini</span>
-              <span className="text-2xl font-bold text-purple-600">{visitorStats.thisYear.toLocaleString()}</span>
+              <span className="text-2xl font-bold text-slate-600">{visitorStats.thisYear.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between items-center p-3 bg-gray-100 rounded-lg">
+            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg">
               <span className="text-gray-600 font-medium">Bulan Kemarin</span>
-              <span className="text-xl font-semibold text-gray-700">{visitorStats.lastMonth.toLocaleString()}</span>
+              <span className="text-xl font-semibold text-slate-700">{visitorStats.lastMonth.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between items-center p-3 bg-gray-100 rounded-lg">
+            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg">
               <span className="text-gray-600 font-medium">Tahun Kemarin</span>
-              <span className="text-xl font-semibold text-gray-700">{visitorStats.lastYear.toLocaleString()}</span>
+              <span className="text-xl font-semibold text-slate-700">{visitorStats.lastYear.toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -394,13 +394,13 @@ export default function DashboardPage() {
                 <div className="flex items-center space-x-3">
                   <span className="text-2xl">{country.flag}</span>
                   <div>
-                    <p className="font-medium text-gray-800">{country.country}</p>
-                    <p className="text-xs text-gray-500">{country.code}</p>
+                    <p className="font-medium text-slate-800">{country.country}</p>
+                    <p className="text-xs text-slate-500">{country.code}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-bold text-primary">{country.visitors.toLocaleString()}</p>
-                  <p className="text-xs text-gray-500">visitors</p>
+                  <p className="text-lg font-bold text-slate-600">{country.visitors.toLocaleString()}</p>
+                  <p className="text-xs text-slate-500">visitors</p>
                 </div>
               </div>
             ))}
