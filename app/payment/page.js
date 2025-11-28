@@ -10,6 +10,8 @@ const PaymentPage = () => {
   const [paymentMethod, setPaymentMethod] = useState('full');
   const [paymentDeadline, setPaymentDeadline] = useState(null);
   const [invoiceNumber, setInvoiceNumber] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   useEffect(() => {
     // Ambil data briefing dari localStorage
@@ -51,7 +53,13 @@ const PaymentPage = () => {
     }).format(date);
   };
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
+    setIsProcessing(true);
+    
+    const fullPayment = briefingData.package.price;
+    const dpPayment = fullPayment / 2;
+    const paymentAmount = paymentMethod === 'full' ? fullPayment : dpPayment;
+    
     // Simpan data pembayaran
     const paymentData = {
       invoiceNumber,
@@ -61,7 +69,7 @@ const PaymentPage = () => {
         email: briefingData.email,
         phone: briefingData.phone
       },
-      amount: paymentMethod === 'full' ? briefingData.package.price : briefingData.package.price / 2,
+      amount: paymentAmount,
       paymentMethod,
       paymentDate: new Date(),
       status: 'paid'
@@ -69,8 +77,42 @@ const PaymentPage = () => {
     
     localStorage.setItem('paymentData', JSON.stringify(paymentData));
     
-    // Arahkan ke halaman konfirmasi pesanan
-    router.push('/order-confirmation');
+    try {
+      // Kirim notifikasi ke admin
+      const response = await fetch('/api/notify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          paymentData,
+          briefingData,
+          invoiceNumber,
+          paymentMethod,
+          amount: paymentAmount
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setPaymentSuccess(true);
+        
+        // Tunggu sebentar sebelum mengalihkan
+        setTimeout(() => {
+          // Arahkan ke halaman konfirmasi pesanan
+          router.push('/order-confirmation');
+        }, 2000);
+      } else {
+        console.error('Gagal mengirim notifikasi:', result.message);
+        alert('Terjadi kesalahan saat mengirim notifikasi. Silakan hubungi admin.');
+        setIsProcessing(false);
+      }
+    } catch (error) {
+      console.error('Error saat memproses pembayaran:', error);
+      alert('Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.');
+      setIsProcessing(false);
+    }
   };
 
   if (!briefingData || !paymentDeadline) {
@@ -207,20 +249,30 @@ const PaymentPage = () => {
                 </p>
               </div>
               
+              {paymentSuccess && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                  <p className="text-sm text-green-800">
+                    <strong>Pembayaran berhasil!</strong> Notifikasi telah dikirim ke admin. Anda akan diarahkan ke halaman konfirmasi pesanan.
+                  </p>
+                </div>
+              )}
+              
               <div className="flex justify-between">
                 <button
                   type="button"
                   className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition"
                   onClick={() => router.push('/briefing')}
+                  disabled={isProcessing}
                 >
                   Kembali
                 </button>
                 <button
                   type="button"
-                  className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primarys transition"
+                  className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primarys transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                   onClick={handlePayment}
+                  disabled={isProcessing || paymentSuccess}
                 >
-                  Bayar Sekarang
+                  {isProcessing ? 'Memproses...' : 'Bayar Sekarang'}
                 </button>
               </div>
             </div>
