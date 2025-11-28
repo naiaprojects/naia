@@ -1,64 +1,59 @@
-export default function Hero() {
+// components/Hero.js
+import { createClient } from '@/lib/supabase-server';
+
+export default async function Hero() {
+  const supabase = createClient();
+
+  // Fetch hero content
+  const { data: heroData } = await supabase
+    .from('hero_content')
+    .select('*')
+    .single();
+
+  // Fetch hero features
+  const { data: features } = await supabase
+    .from('hero_features')
+    .select('*')
+    .eq('is_active', true)
+    .order('position', { ascending: true });
+
+  const hero = heroData || {
+    title: 'Ubah Blogspot Anda Jadi Website Premium',
+    background_image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQURFZv63UernQRlg8fAFzNp6fn7ugpbKDDhbothv6W-s6p8-CRV3YakUJkwfi07mfDcVJxTwYgf_5O88U5YByKEx1W-tE5z8Kkk8V5ExtcGbWgn0hFU6FTp5Eg1lFstjPp8aX33MgPs6XJd3TcysXZ5UIuLy2VtNq6aPAWakWe2BFcEL7Je0GkGI_744/s1920/19381187_6125995.webp',
+    right_image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEimRipe1eBeaGjLIafhSbzS2433hUKOOcMvH9WZwP7f6BpattbInLQaMu5u5ewGKwWF6T0EV_PkGOvGRvAefBXmIFVx3usVU62LHaQj7KQvXmMJwd9ipsOpLu80HFnqW8YsA9uryWc5ECGsTV3eETAuEFQDgShwZjC2-pVadbfpP2wjvyqjJ6HhLl3hBCU/s1600/HeroBg.webp'
+  };
+
   return (
-    <section className="bg-white min-h-screen relative overflow-hidden bg-[url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQURFZv63UernQRlg8fAFzNp6fn7ugpbKDDhbothv6W-s6p8-CRV3YakUJkwfi07mfDcVJxTwYgf_5O88U5YByKEx1W-tE5z8Kkk8V5ExtcGbWgn0hFU6FTp5Eg1lFstjPp8aX33MgPs6XJd3TcysXZ5UIuLy2VtNq6aPAWakWe2BFcEL7Je0GkGI_744/s1920/19381187_6125995.webp')] bg-no-repeat bg-cover bg-center">
+    <section
+      className="bg-white min-h-screen relative overflow-hidden bg-no-repeat bg-cover bg-center"
+      style={{ backgroundImage: `url('${hero.background_image}')` }}
+    >
       <div className="pt-24 max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Left Content */}
         <div className="p-8 pb-24 sm:pb-8">
           <h1 className="font-bold text-3xl text-white mb-5 md:text-5xl leading-[50px]">
-            Ubah Blogspot Anda Jadi Website Premium
+            {hero.title}
           </h1>
 
           <div className="mt-6 sm:mt-16 space-y-6">
-            {/* Feature 1 */}
-            <div className="flex items-center space-x-4 p-4 bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300">
-              <div className="p-3 bg-primary rounded-full shadow-lg hover:scale-110 transform transition duration-300">
-                <img
-                  alt="Profesional"
-                  className="w-10 brightness-0 invert opacity-90"
-                  src="https://www.svgrepo.com/show/425602/rocket-launch-launch-marketing.svg"
-                />
+            {features?.map((feature) => (
+              <div
+                key={feature.id}
+                className="flex items-center space-x-4 p-4 bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300"
+              >
+                <div className="p-3 bg-primary rounded-full shadow-lg hover:scale-110 transform transition duration-300">
+                  <img
+                    alt={feature.title}
+                    className="w-10 brightness-0 invert opacity-90"
+                    src={feature.icon_url}
+                  />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-slate-800">{feature.title}</h3>
+                  <p className="text-slate-600 text-sm">{feature.description}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-semibold text-slate-800">Profesional</h3>
-                <p className="text-slate-600 text-sm">
-                  Desain eksklusif, bukan template pasaran. Dibuat oleh desainer berpengalaman khusus untuk Blogspot Anda.
-                </p>
-              </div>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="flex items-center space-x-4 p-4 bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300">
-              <div className="p-3 bg-primary rounded-full shadow-lg hover:scale-110 transform transition duration-300">
-                <img
-                  alt="Harga Terjangkau"
-                  className="w-10 brightness-0 invert opacity-90"
-                  src="https://www.svgrepo.com/show/390201/wallet-money-cash.svg"
-                />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-slate-800">Harga Terjangkau</h3>
-                <p className="text-slate-600 text-sm">
-                  Tampilan premium tanpa biaya berlebihan. Desain sekelas website mahal dengan budget hemat.
-                </p>
-              </div>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="flex items-center space-x-4 p-3 bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300">
-              <div className="p-3 bg-primary rounded-full shadow-lg hover:scale-110 transform transition duration-300">
-                <img
-                  alt="Instant Support"
-                  className="w-10 brightness-0 invert opacity-90"
-                  src="https://www.svgrepo.com/show/385097/chat-message-sms-bell-ring-notification.svg"
-                />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-slate-800">Instant Support</h3>
-                <p className="text-slate-600 text-sm">
-                  Respon cepat dan dukungan penuh. Kami siap bantu 24/7 dari instalasi hingga penyesuaian website blogspot anda.
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -68,7 +63,7 @@ export default function Hero() {
           <img
             alt="Desain Orisinil"
             className="relative object-cover w-full h-full transition duration-500 hover:rotate-2 hover:scale-110 rounded-lg"
-            src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEimRipe1eBeaGjLIafhSbzS2433hUKOOcMvH9WZwP7f6BpattbInLQaMu5u5ewGKwWF6T0EV_PkGOvGRvAefBXmIFVx3usVU62LHaQj7KQvXmMJwd9ipsOpLu80HFnqW8YsA9uryWc5ECGsTV3eETAuEFQDgShwZjC2-pVadbfpP2wjvyqjJ6HhLl3hBCU/s1600/HeroBg.webp"
+            src={hero.right_image}
           />
         </div>
       </div>

@@ -12,19 +12,34 @@ const PaymentPage = () => {
   const [invoiceNumber, setInvoiceNumber] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [bankAccounts, setBankAccounts] = useState([]);
+
+  const fetchBankAccounts = async () => {
+    try {
+      const response = await fetch('/api/bank-accounts');
+      if (response.ok) {
+        const data = await response.json();
+        setBankAccounts(data);
+      }
+    } catch (error) {
+      console.error('Error fetching bank accounts:', error);
+    }
+  };
 
   useEffect(() => {
+    fetchBankAccounts();
+
     // Ambil data briefing dari localStorage
     const data = localStorage.getItem('briefingData');
     if (data) {
       const parsedData = JSON.parse(data);
       setBriefingData(parsedData);
-      
+
       // Generate nomor invoice
       const now = new Date();
       const invoice = `INV-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${Math.floor(Math.random() * 1000)}`;
       setInvoiceNumber(invoice);
-      
+
       // Set deadline pembayaran (3 hari dari sekarang)
       const deadline = new Date();
       deadline.setDate(deadline.getDate() + 3);
@@ -55,12 +70,11 @@ const PaymentPage = () => {
 
   const handlePayment = async () => {
     setIsProcessing(true);
-    
+
     const fullPayment = briefingData.package.price;
     const dpPayment = fullPayment / 2;
     const paymentAmount = paymentMethod === 'full' ? fullPayment : dpPayment;
-    
-    // Simpan data pembayaran
+
     const paymentData = {
       invoiceNumber,
       package: briefingData.package,
@@ -72,18 +86,30 @@ const PaymentPage = () => {
       amount: paymentAmount,
       paymentMethod,
       paymentDate: new Date(),
-      status: 'paid'
+      status: 'pending'
     };
-    
+
     localStorage.setItem('paymentData', JSON.stringify(paymentData));
-    
+
     try {
-      // Kirim notifikasi ke admin
-      const response = await fetch('/api/notify', {
+      // Simpan order ke database
+      const orderResponse = await fetch('/api/orders', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...paymentData,
+          briefingData
+        }),
+      });
+
+      if (!orderResponse.ok) {
+        throw new Error('Gagal menyimpan order');
+      }
+
+      // Kirim notifikasi ke admin (opsional)
+      await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           paymentData,
           briefingData,
@@ -92,22 +118,12 @@ const PaymentPage = () => {
           amount: paymentAmount
         }),
       });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        setPaymentSuccess(true);
-        
-        // Tunggu sebentar sebelum mengalihkan
-        setTimeout(() => {
-          // Arahkan ke halaman konfirmasi pesanan
-          router.push('/order-confirmation');
-        }, 2000);
-      } else {
-        console.error('Gagal mengirim notifikasi:', result.message);
-        alert('Terjadi kesalahan saat mengirim notifikasi. Silakan hubungi admin.');
-        setIsProcessing(false);
-      }
+
+      setPaymentSuccess(true);
+
+      setTimeout(() => {
+        router.push(`/invoice/${paymentData.invoiceNumber}`);
+      }, 2000);
     } catch (error) {
       console.error('Error saat memproses pembayaran:', error);
       alert('Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.');
@@ -138,7 +154,7 @@ const PaymentPage = () => {
             <h1 className="text-2xl font-bold">Pembayaran</h1>
             <p className="mt-2">Lakukan pembayaran untuk melanjutkan proses pemesanan</p>
           </div>
-          
+
           <div className="p-6 md:p-8">
             {/* Invoice Details */}
             <div className="mb-8">
@@ -158,7 +174,7 @@ const PaymentPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Package Details */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-4">Detail Paket</h2>
@@ -177,7 +193,7 @@ const PaymentPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Customer Details */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-4">Informasi Pelanggan</h2>
@@ -196,7 +212,40 @@ const PaymentPage = () => {
                 </div>
               </div>
             </div>
-            
+
+            {/* Bank Account Details */}
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">Informasi Rekening Bank</h2>
+              <div className="space-y-4">
+                {bankAccounts.map((bank) => (
+                  <div key={bank.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold text-lg">{bank.bank_name}</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(bank.account_number);
+                          alert('Nomor rekening berhasil disalin!');
+                        }}
+                        className="text-sm text-primary hover:text-primarys"
+                      >
+                        Salin
+                      </button>
+                    </div>
+                    <div className="text-gray-700">
+                      <div className="mb-1">
+                        <span className="text-gray-600">No. Rekening: </span>
+                        <span className="font-medium">{bank.account_number}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Atas Nama: </span>
+                        <span className="font-medium">{bank.account_holder}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Payment Method */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-4">Metode Pembayaran</h2>
@@ -233,7 +282,7 @@ const PaymentPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Payment Summary */}
             <div className="border-t pt-6">
               <div className="flex justify-between mb-4">
@@ -242,13 +291,13 @@ const PaymentPage = () => {
                   {formatPrice(paymentMethod === 'full' ? fullPayment : dpPayment)}
                 </span>
               </div>
-              
+
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <p className="text-sm text-blue-800">
-                  <strong>Catatan:</strong> Pembayaran dapat dilakukan melalui transfer bank ke nomor rekening yang akan dikirimkan melalui WhatsApp setelah Anda menekan tombol "Bayar Sekarang".
+                  <strong>Catatan:</strong> Silakan transfer ke salah satu rekening bank di atas sesuai dengan total pembayaran yang tertera.
                 </p>
               </div>
-              
+
               {paymentSuccess && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                   <p className="text-sm text-green-800">
@@ -256,7 +305,7 @@ const PaymentPage = () => {
                   </p>
                 </div>
               )}
-              
+
               <div className="flex justify-between">
                 <button
                   type="button"

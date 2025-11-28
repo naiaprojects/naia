@@ -1,15 +1,29 @@
+// app/api/testimoni/route.js
+import { createClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
-import { getTestimoniItems } from '@/lib/testimoni';
 
 export async function GET() {
+  const supabase = createClient();
+
   try {
-    const testimoniItems = getTestimoniItems();
-    return NextResponse.json(testimoniItems);
+    const { data, error } = await supabase
+      .from('testimoni_items')
+      .select('*')
+      .eq('is_active', true)
+      .order('position', { ascending: true });
+
+    if (error) throw error;
+
+    // Transform data to match expected format
+    const testimoniData = data.map(item => ({
+      id: item.id,
+      image: item.image_url,
+      alt: item.alt || 'Testimoni'
+    }));
+
+    return NextResponse.json(testimoniData);
   } catch (error) {
-    console.error('Error fetching testimoni items:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch testimoni items' },
-      { status: 500 }
-    );
+    console.error('Error fetching testimoni:', error);
+    return NextResponse.json([], { status: 500 });
   }
 }

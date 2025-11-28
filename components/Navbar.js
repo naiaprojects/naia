@@ -1,9 +1,42 @@
+// components/Navbar.js
 'use client';
-import { useState } from 'react';
-import Image from 'next/image';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [navItems, setNavItems] = useState([]);
+  const [logoUrl, setLogoUrl] = useState('');
+
+  useEffect(() => {
+    fetchNavData();
+  }, []);
+
+  const fetchNavData = async () => {
+    try {
+      // Fetch navigation items
+      const { data: navData, error: navError } = await supabase
+        .from('navigation_items')
+        .select('*')
+        .eq('is_active', true)
+        .order('position', { ascending: true });
+
+      if (navError) throw navError;
+      setNavItems(navData || []);
+
+      // Fetch logo URL
+      const { data: settingsData, error: settingsError } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'logo_url')
+        .single();
+
+      if (settingsError) throw settingsError;
+      setLogoUrl(settingsData?.value || '');
+    } catch (error) {
+      console.error('Error fetching navbar data:', error);
+    }
+  };
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -20,47 +53,29 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <a href="/" className="flex items-center space-x-3">
-              <img
-                src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhOLN4ocZGMeVkNriUp_4qZHx9l-4cFYbnKm_0iRYDs8y3t1mKauAcwYs52aj3Wpr30d3aOh6RpsK5eLhUM84ESx_U8h7eVr5d7ra3u11TfHCHJ0manoQBdC_Muyds_KFKION1JCF5tTjchNSfULuj5nUp7fkssXBpzCQ_dl8rSIab6Do8u2dKYvIQage0/w300/Logo-05.webp"
-                alt="NaiaGrafika"
-                className="h-8"
-              />
+              {logoUrl && (
+                <img
+                  src={logoUrl}
+                  alt="NaiaGrafika"
+                  className="h-8"
+                />
+              )}
             </a>
           </div>
 
           {/* Desktop Menu */}
           <nav className="hidden md:block">
             <ul className="flex space-x-8">
-              <li>
-                <a href="#pricelist" className="text-slate-800 hover:text-primary transition duration-300 font-medium">
-                  Daftar Harga
-                </a>
-              </li>
-              <li>
-                <a href="#porto" className="text-slate-800 hover:text-primary transition duration-300 font-medium">
-                  Portofolio
-                </a>
-              </li>
-              <li>
-                <a href="#testi" className="text-slate-800 hover:text-primary transition duration-300 font-medium">
-                  Testimoni
-                </a>
-              </li>
-              <li>
-                <a href="#feature" className="text-slate-800 hover:text-primary transition duration-300 font-medium">
-                  Fitur
-                </a>
-              </li>
-              <li>
-                <a href="#project" className="text-slate-800 hover:text-primary transition duration-300 font-medium">
-                  Projek
-                </a>
-              </li>
-              <li>
-                <a href="#faq" className="text-slate-800 hover:text-primary transition duration-300 font-medium">
-                  Pertanyaan
-                </a>
-              </li>
+              {navItems.map((item) => (
+                <li key={item.id}>
+                  <a 
+                    href={item.href} 
+                    className="text-slate-800 hover:text-primary transition duration-300 font-medium"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </nav>
 
@@ -97,36 +112,17 @@ export default function Navbar() {
             </div>
             <nav className="p-4">
               <ul className="space-y-4">
-                <li>
-                  <a href="#pricelist" onClick={closeMobileMenu} className="block py-2 text-gray-700 hover:text-orange-500 transition duration-300 font-medium">
-                    Daftar Harga
-                  </a>
-                </li>
-                <li>
-                  <a href="#porto" onClick={closeMobileMenu} className="block py-2 text-gray-700 hover:text-orange-500 transition duration-300 font-medium">
-                    Portofolio
-                  </a>
-                </li>
-                <li>
-                  <a href="#testi" onClick={closeMobileMenu} className="block py-2 text-gray-700 hover:text-orange-500 transition duration-300 font-medium">
-                    Testimoni
-                  </a>
-                </li>
-                <li>
-                  <a href="#feature" onClick={closeMobileMenu} className="block py-2 text-gray-700 hover:text-orange-500 transition duration-300 font-medium">
-                    Fitur
-                  </a>
-                </li>
-                <li>
-                  <a href="#project" onClick={closeMobileMenu} className="block py-2 text-gray-700 hover:text-orange-500 transition duration-300 font-medium">
-                    Projek
-                  </a>
-                </li>
-                <li>
-                  <a href="#faq" onClick={closeMobileMenu} className="block py-2 text-gray-700 hover:text-orange-500 transition duration-300 font-medium">
-                    Pertanyaan
-                  </a>
-                </li>
+                {navItems.map((item) => (
+                  <li key={item.id}>
+                    <a 
+                      href={item.href} 
+                      onClick={closeMobileMenu} 
+                      className="block py-2 text-gray-700 hover:text-orange-500 transition duration-300 font-medium"
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </nav>
           </div>

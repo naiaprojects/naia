@@ -62,12 +62,7 @@ function BriefingForm() {
     name: '',
     email: '',
     phone: '',
-    websiteName: '',
-    websiteDescription: '',
-    websitePurpose: '',
-    colorPreference: '',
-    referenceWebsites: '',
-    additionalInfo: ''
+    websiteName: ''
   });
   const [errors, setErrors] = useState({});
 
@@ -83,8 +78,7 @@ function BriefingForm() {
       ...prev,
       [name]: value
     }));
-    
-    // Clear error when user starts typing
+
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -95,48 +89,38 @@ function BriefingForm() {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'Nama lengkap harus diisi';
     }
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email harus diisi';
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
       newErrors.email = 'Format email tidak valid';
     }
-    
+
     if (!formData.phone.trim()) {
       newErrors.phone = 'Nomor telepon harus diisi';
     }
-    
+
     if (!formData.websiteName.trim()) {
       newErrors.websiteName = 'Nama website harus diisi';
     }
-    
-    if (!formData.websiteDescription.trim()) {
-      newErrors.websiteDescription = 'Deskripsi website harus diisi';
-    }
-    
-    if (!formData.websitePurpose.trim()) {
-      newErrors.websitePurpose = 'Tujuan website harus diisi';
-    }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
-      // Simpan data formulir ke localStorage atau state management
       localStorage.setItem('briefingData', JSON.stringify({
         ...formData,
         package: selectedPackage
       }));
-      
-      // Arahkan ke halaman pembayaran
+
       router.push('/payment');
     }
   };
@@ -154,7 +138,7 @@ function BriefingForm() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">Paket tidak ditemukan</h2>
-          <button 
+          <button
             className="bg-primary text-white px-6 py-2 rounded-full hover:bg-primarys transition"
             onClick={() => router.push('/')}
           >
@@ -173,7 +157,7 @@ function BriefingForm() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Formulir Briefing</h1>
             <p className="text-gray-600">Lengkapi formulir berikut untuk memulai pemesanan paket {selectedPackage.name}</p>
           </div>
-          
+
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
             <div className="flex items-center justify-between">
               <div>
@@ -185,7 +169,7 @@ function BriefingForm() {
               </div>
             </div>
           </div>
-          
+
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -203,7 +187,7 @@ function BriefingForm() {
                 />
                 {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
               </div>
-              
+
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email *
@@ -219,7 +203,7 @@ function BriefingForm() {
                 />
                 {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
               </div>
-              
+
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
                   Nomor Telepon *
@@ -235,7 +219,7 @@ function BriefingForm() {
                 />
                 {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
               </div>
-              
+
               <div>
                 <label htmlFor="websiteName" className="block text-sm font-medium text-gray-700 mb-1">
                   Nama Website *
@@ -251,85 +235,8 @@ function BriefingForm() {
                 />
                 {errors.websiteName && <p className="text-red-500 text-sm mt-1">{errors.websiteName}</p>}
               </div>
-              
-              <div className="md:col-span-2">
-                <label htmlFor="websiteDescription" className="block text-sm font-medium text-gray-700 mb-1">
-                  Deskripsi Website *
-                </label>
-                <textarea
-                  id="websiteDescription"
-                  name="websiteDescription"
-                  value={formData.websiteDescription}
-                  onChange={handleChange}
-                  rows={4}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${errors.websiteDescription ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="Jelaskan secara singkat tentang website yang Anda inginkan"
-                ></textarea>
-                {errors.websiteDescription && <p className="text-red-500 text-sm mt-1">{errors.websiteDescription}</p>}
-              </div>
-              
-              <div className="md:col-span-2">
-                <label htmlFor="websitePurpose" className="block text-sm font-medium text-gray-700 mb-1">
-                  Tujuan Website *
-                </label>
-                <textarea
-                  id="websitePurpose"
-                  name="websitePurpose"
-                  value={formData.websitePurpose}
-                  onChange={handleChange}
-                  rows={3}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${errors.websitePurpose ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="Apa tujuan utama dari website ini? (misal: untuk portofolio, jualan, dll)"
-                ></textarea>
-                {errors.websitePurpose && <p className="text-red-500 text-sm mt-1">{errors.websitePurpose}</p>}
-              </div>
-              
-              <div>
-                <label htmlFor="colorPreference" className="block text-sm font-medium text-gray-700 mb-1">
-                  Preferensi Warna
-                </label>
-                <input
-                  type="text"
-                  id="colorPreference"
-                  name="colorPreference"
-                  value={formData.colorPreference}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Biru, merah, dll"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="referenceWebsites" className="block text-sm font-medium text-gray-700 mb-1">
-                  Website Referensi
-                </label>
-                <input
-                  type="text"
-                  id="referenceWebsites"
-                  name="referenceWebsites"
-                  value={formData.referenceWebsites}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="website1.com, website2.com"
-                />
-              </div>
-              
-              <div className="md:col-span-2">
-                <label htmlFor="additionalInfo" className="block text-sm font-medium text-gray-700 mb-1">
-                  Informasi Tambahan
-                </label>
-                <textarea
-                  id="additionalInfo"
-                  name="additionalInfo"
-                  value={formData.additionalInfo}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Informasi tambahan yang ingin Anda sampaikan"
-                ></textarea>
-              </div>
             </div>
-            
+
             <div className="mt-8 flex justify-between">
               <button
                 type="button"
