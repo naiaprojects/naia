@@ -4,6 +4,8 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase-client';
 import { useRouter } from 'next/navigation';
+import Breadcrumb from '@/components/Breadcrumb';
+import LogoPathAnimation from '@/components/LogoPathAnimation';
 
 export default function HeroManagementPage() {
     const supabase = createClient();
@@ -202,46 +204,58 @@ export default function HeroManagementPage() {
     };
 
     if (loading) {
-        return <div className="flex justify-center items-center h-64">Loading...</div>;
-    }
+        return (
+          <div className="flex justify-center items-center h-64">
+            <LogoPathAnimation />
+          </div>
+        );
+      }
 
     return (
-        <div className="max-w-full">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">Hero Management</h1>
-                {activeTab === 'features' && (
-                    <button
-                        onClick={() => setShowForm(!showForm)}
-                        className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary"
-                    >
-                        {showForm ? 'Batal' : 'Tambah Feature'}
-                    </button>
-                )}
+        <div className="p-4 lg:p-6 mt-16 lg:mt-0">
+            {/* Header */}
+            <div className="mb-6">
+                <Breadcrumb />
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mt-2">
+                    <div>
+                        <h1 className="text-2xl lg:text-3xl font-bold text-slate-700">Hero Management</h1>
+                        <p className="text-sm text-slate-700 mt-1">Kelola konten hero dan fitur utama</p>
+                    </div>
+                    {activeTab === 'features' && (
+                        <button
+                            onClick={() => setShowForm(!showForm)}
+                            className="w-full sm:w-auto bg-primary text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-secondary text-sm sm:text-base"
+                        >
+                            {showForm ? 'Batal' : 'Tambah Feature'}
+                        </button>
+                    )}
+                </div>
             </div>
 
+            {/* Alert Message */}
             {message && (
-                <div className={`mb-4 p-4 rounded ${message.includes('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                <div className={`mb-4 p-3 lg:p-4 rounded-lg text-sm ${message.includes('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
                     {message}
                 </div>
             )}
 
             {/* Tabs */}
-            <div className="mb-6 border-b border-gray-200">
-                <nav className="-mb-px flex space-x-8">
+            <div className="mb-6 border-b border-slate-200">
+                <nav className="-mb-px flex space-x-8 overflow-x-auto">
                     <button
                         onClick={() => setActiveTab('content')}
-                        className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'content'
+                        className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === 'content'
                             ? 'border-primary text-primary'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            : 'border-transparent text-slate-700 hover:text-slate-700 hover:border-slate-300'
                             }`}
                     >
                         Hero Content
                     </button>
                     <button
                         onClick={() => setActiveTab('features')}
-                        className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'features'
+                        className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === 'features'
                             ? 'border-primary text-primary'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            : 'border-transparent text-slate-700 hover:text-slate-700 hover:border-slate-300'
                             }`}
                     >
                         Features
@@ -251,43 +265,43 @@ export default function HeroManagementPage() {
 
             {/* Hero Content Form */}
             {activeTab === 'content' && (
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-xl font-semibold mb-4">Edit Hero Content</h2>
+                <div className="bg-white rounded-lg shadow p-4 lg:p-6">
+                    <h2 className="text-xl lg:text-2xl font-semibold mb-4 text-slate-700">Edit Hero Content</h2>
                     <form onSubmit={handleHeroSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">Title</label>
                             <input
                                 type="text"
                                 value={heroFormData.title}
                                 onChange={(e) => setHeroFormData({ ...heroFormData, title: e.target.value })}
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Background Image URL</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">Background Image URL</label>
                             <input
                                 type="text"
                                 value={heroFormData.background_image}
                                 onChange={(e) => setHeroFormData({ ...heroFormData, background_image: e.target.value })}
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                             />
                             {heroFormData.background_image && (
-                                <img src={heroFormData.background_image} alt="Background Preview" className="mt-2 h-32 rounded" />
+                                <img src={heroFormData.background_image} alt="Background Preview" className="mt-2 h-24 sm:h-32 rounded object-cover w-full sm:w-auto" />
                             )}
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Right Image URL</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">Right Image URL</label>
                             <input
                                 type="text"
                                 value={heroFormData.right_image}
                                 onChange={(e) => setHeroFormData({ ...heroFormData, right_image: e.target.value })}
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                             />
                             {heroFormData.right_image && (
-                                <img src={heroFormData.right_image} alt="Right Image Preview" className="mt-2 h-32 rounded" />
+                                <img src={heroFormData.right_image} alt="Right Image Preview" className="mt-2 h-24 sm:h-32 rounded object-cover w-full sm:w-auto" />
                             )}
                         </div>
                         <button type="submit" className="w-full bg-primary text-white py-2 rounded-lg hover:bg-secondary">
@@ -299,68 +313,70 @@ export default function HeroManagementPage() {
 
             {/* Features Form */}
             {activeTab === 'features' && showForm && (
-                <div className="bg-white rounded-lg shadow p-6 mb-6">
-                    <h2 className="text-xl font-semibold mb-4">
+                <div className="bg-white rounded-lg shadow p-4 lg:p-6 mb-6">
+                    <h2 className="text-xl lg:text-2xl font-semibold mb-4 text-slate-700">
                         {editFeature ? 'Edit Feature' : 'Tambah Feature'}
                     </h2>
                     <form onSubmit={handleFeatureSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                            <input
-                                type="text"
-                                value={featureFormData.title}
-                                onChange={(e) => setFeatureFormData({ ...featureFormData, title: e.target.value })}
-                                required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">Title</label>
+                                <input
+                                    type="text"
+                                    value={featureFormData.title}
+                                    onChange={(e) => setFeatureFormData({ ...featureFormData, title: e.target.value })}
+                                    required
+                                    className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">Position</label>
+                                <input
+                                    type="number"
+                                    value={featureFormData.position}
+                                    onChange={(e) => setFeatureFormData({ ...featureFormData, position: parseInt(e.target.value) })}
+                                    required
+                                    className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                />
+                            </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">Description</label>
                             <textarea
                                 value={featureFormData.description}
                                 onChange={(e) => setFeatureFormData({ ...featureFormData, description: e.target.value })}
                                 required
                                 rows="3"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Icon URL</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">Icon URL</label>
                             <input
                                 type="text"
                                 value={featureFormData.icon_url}
                                 onChange={(e) => setFeatureFormData({ ...featureFormData, icon_url: e.target.value })}
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                             />
                             {featureFormData.icon_url && (
-                                <img src={featureFormData.icon_url} alt="Icon Preview" className="mt-2 h-12" />
+                                <img src={featureFormData.icon_url} alt="Icon Preview" className="mt-2 h-12 rounded" />
                             )}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
-                            <input
-                                type="number"
-                                value={featureFormData.position}
-                                onChange={(e) => setFeatureFormData({ ...featureFormData, position: parseInt(e.target.value) })}
-                                required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            />
                         </div>
                         <div className="flex items-center">
                             <input
                                 type="checkbox"
                                 checked={featureFormData.is_active}
                                 onChange={(e) => setFeatureFormData({ ...featureFormData, is_active: e.target.checked })}
-                                className="mr-2"
+                                className="mr-2 h-4 w-4 text-primary focus:ring-primary border-slate-300 rounded"
                             />
-                            <label className="text-sm font-medium text-gray-700">Aktif</label>
+                            <label className="text-sm font-medium text-slate-700">Aktif</label>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex flex-col sm:flex-row gap-3">
                             <button type="submit" className="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-secondary">
                                 {editFeature ? 'Update' : 'Simpan'}
                             </button>
-                            <button type="button" onClick={resetFeatureForm} className="px-6 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400">
+                            <button type="button" onClick={resetFeatureForm} className="px-4 sm:px-6 bg-slate-300 text-slate-700 py-2 rounded-lg hover:bg-slate-400">
                                 Batal
                             </button>
                         </div>
@@ -368,38 +384,88 @@ export default function HeroManagementPage() {
                 </div>
             )}
 
-            {/* Features Table */}
+            {/* Desktop Table View - Features */}
             {activeTab === 'features' && (
-                <div className="bg-white rounded-lg shadow overflow-hidden">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {features.map((feature) => (
-                                <tr key={feature.id}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{feature.position}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{feature.title}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">{feature.description}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2 py-1 text-xs rounded-full ${feature.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                            {feature.is_active ? 'Aktif' : 'Nonaktif'}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button onClick={() => handleEditFeature(feature)} className="text-blue-600 hover:text-blue-900 mr-4">Edit</button>
-                                        <button onClick={() => handleDeleteFeature(feature.id)} className="text-red-600 hover:text-red-900">Hapus</button>
-                                    </td>
+                <div className="hidden lg:block bg-white rounded-lg shadow overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-slate-200">
+                            <thead className="bg-slate-50">
+                                <tr>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Position</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Title</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Description</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Status</th>
+                                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-700 uppercase">Aksi</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-slate-200">
+                                {features.map((feature) => (
+                                    <tr key={feature.id} className="hover:bg-slate-50">
+                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-700">{feature.position}</td>
+                                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-slate-700">{feature.title}</td>
+                                        <td className="px-4 py-3 text-sm text-slate-700">{feature.description}</td>
+                                        <td className="px-4 py-3 whitespace-nowrap">
+                                            <span className={`px-2 py-1 text-xs rounded-full ${feature.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                                {feature.is_active ? 'Aktif' : 'Nonaktif'}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                            <button onClick={() => handleEditFeature(feature)} className="bg-blue-600 mr-2 py-1 px-2 text-white font-medium rounded-lg">Edit</button>
+                                            <button onClick={() => handleDeleteFeature(feature.id)} className="bg-red-600 py-1 px-2 text-white font-medium rounded-lg hover:bg-red-900">Hapus</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* Mobile Card View - Features */}
+            {activeTab === 'features' && (
+                <div className="lg:hidden space-y-4">
+                    {features.map((feature) => (
+                        <div key={feature.id} className="bg-white rounded-lg shadow p-4">
+                            <div className="flex justify-between items-start mb-3">
+                                <div className="flex-1">
+                                    <p className="font-semibold text-slate-700 mb-1">{feature.title}</p>
+                                    <p className="text-xs text-slate-500">Posisi: {feature.position}</p>
+                                </div>
+                                <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ${feature.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                    {feature.is_active ? 'Aktif' : 'Nonaktif'}
+                                </span>
+                            </div>
+                            
+                            <div className="mb-3">
+                                <p className="text-sm text-slate-700">{feature.description}</p>
+                            </div>
+
+                            <div className="flex gap-2">
+                                <button 
+                                    onClick={() => handleEditFeature(feature)} 
+                                    className="flex-1 bg-blue-600 py-2 text-white font-medium rounded-lg text-sm"
+                                >
+                                    Edit
+                                </button>
+                                <button 
+                                    onClick={() => handleDeleteFeature(feature.id)} 
+                                    className="flex-1 bg-red-600 py-2 text-white font-medium rounded-lg text-sm"
+                                >
+                                    Hapus
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Empty State - Features */}
+            {activeTab === 'features' && features.length === 0 && (
+                <div className="bg-white rounded-lg shadow p-8 text-center">
+                    <svg className="w-16 h-16 mx-auto text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    <p className="text-slate-700">Tidak ada feature yang tersedia</p>
                 </div>
             )}
         </div>

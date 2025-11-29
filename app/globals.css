@@ -1,3 +1,125 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.ql-container {
+    min-height: 300px;
+}
+
+.ql-editor {
+    min-height: 300px;
+}
+.ql-editor {
+  padding: 0 !important;
+  border: none !important;
+  font-family: inherit;
+}
+
+.ql-editor p {
+  margin-bottom: 1em;
+  line-height: 1.75;
+}
+
+.ql-editor h1 {
+  font-size: 2.25em;
+  font-weight: bold;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.ql-editor h2 {
+  font-size: 1.875em;
+  font-weight: bold;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.ql-editor h3 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.ql-editor strong {
+  font-weight: 700;
+}
+
+.ql-editor em {
+  font-style: italic;
+}
+
+.ql-editor u {
+  text-decoration: underline;
+}
+
+.ql-editor a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.ql-editor ul, .ql-editor ol {
+  padding-left: 1.5em;
+  margin-bottom: 1em;
+}
+.ql-editor ul {
+    list-style: disc;
+}
+.ql-editor ol {
+    list-style: upper-roman;
+}
+
+.ql-editor li {
+  margin-bottom: 0.5em;
+}
+
+.ql-editor blockquote {
+  border-left: 4px solid #e5e7eb;
+  padding-left: 1em;
+  margin: 1em 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.ql-editor img {
+  max-width: 100%;
+  height: auto;
+  margin: 1em 0;
+  border-radius: 0.5rem;
+}
+
+.ql-editor code {
+  background-color: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-family: monospace;
+  font-size: 0.875em;
+}
+
+.ql-editor pre {
+  background-color: #1f2937;
+  color: #f3f4f6;
+  padding: 1em;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.ql-editor pre code {
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+/* Text alignment */
+.ql-editor .ql-align-center {
+  text-align: center;
+}
+
+.ql-editor .ql-align-right {
+  text-align: right;
+}
+
+.ql-editor .ql-align-justify {
+  text-align: justify;
+}

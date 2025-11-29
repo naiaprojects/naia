@@ -60,14 +60,14 @@ const Testimoni = () => {
             <div className="testimoniSection mr-4 section" id="testimoniSection" name="Testimoni Section">
               <div className="widget Text" data-version="1" id="Text24">
                 <div className="widget-content">
-                  <h1 className="max-w-2xl mx-auto text-center font-manrope font-bold text-4xl text-primarys mb-5 md:text-6xl leading-[50px]">
+                  <h1 className="max-w-2xl mx-auto text-center font-manrope font-bold text-4xl text-slate-700 mb-5 md:text-6xl leading-[50px]">
                     Testimoni
                   </h1>
                 </div>
               </div>
               <div className="widget Text" data-version="1" id="Text25">
                 <div className="widget-content">
-                  <p className="sm:max-w-2xl sm:mx-auto text-center text-base font-normal leading-7 text-gray-500 mb-9">
+                  <p className="sm:max-w-2xl sm:mx-auto text-center text-base font-normal leading-7 text-slate-700 mb-9">
                     Kepuasan pelanggan adalah prioritas kami, lihat apa kata mereka!
                   </p>
                 </div>

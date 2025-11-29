@@ -49,8 +49,8 @@ export default async function Hero() {
                   />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-slate-800">{feature.title}</h3>
-                  <p className="text-slate-600 text-sm">{feature.description}</p>
+                  <h3 className="text-xl font-semibold text-slate-700">{feature.title}</h3>
+                  <p className="text-slate-700 text-sm">{feature.description}</p>
                 </div>
               </div>
             ))}

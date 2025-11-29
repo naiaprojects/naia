@@ -4,6 +4,8 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase-client';
 import { useRouter } from 'next/navigation';
+import Breadcrumb from '@/components/Breadcrumb';
+import LogoPathAnimation from '@/components/LogoPathAnimation';
 
 export default function FooterManagementPage() {
   const supabase = createClient();
@@ -231,44 +233,56 @@ export default function FooterManagementPage() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-64">Loading...</div>;
-  }
+      return (
+        <div className="flex justify-center items-center h-64">
+          <LogoPathAnimation />
+        </div>
+      );
+    }
 
   return (
-    <div className="max-w-full">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Footer Management</h1>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary"
-        >
-          {showForm ? 'Batal' : 'Tambah Item'}
-        </button>
+    <div className="p-4 lg:p-6 mt-16 lg:mt-0">
+      {/* Header */}
+      <div className="mb-6">
+        <Breadcrumb />
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mt-2">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-slate-700">Footer Management</h1>
+            <p className="text-sm text-slate-700 mt-1">Kelola link footer dan media sosial</p>
+          </div>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="w-full sm:w-auto bg-primary text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-secondary text-sm sm:text-base"
+          >
+            {showForm ? 'Batal' : 'Tambah Item'}
+          </button>
+        </div>
       </div>
 
+      {/* Alert Message */}
       {message && (
-        <div className={`mb-4 p-4 rounded ${message.includes('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+        <div className={`mb-4 p-3 lg:p-4 rounded-lg text-sm ${message.includes('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
           {message}
         </div>
       )}
 
       {/* Tabs */}
       <div className="mb-6 border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
+        <nav className="-mb-px flex space-x-8 overflow-x-auto">
           <button
             onClick={() => setActiveTab('footer')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'footer'
+            className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === 'footer'
               ? 'border-primary text-primary'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              : 'border-transparent text-slate-700 hover:text-slate-700 hover:border-gray-300'
               }`}
           >
             Footer Links
           </button>
           <button
             onClick={() => setActiveTab('social')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'social'
+            className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === 'social'
               ? 'border-primary text-primary'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              : 'border-transparent text-slate-700 hover:text-slate-700 hover:border-gray-300'
               }`}
           >
             Social Links
@@ -278,52 +292,54 @@ export default function FooterManagementPage() {
 
       {/* Footer Links Form */}
       {showForm && activeTab === 'footer' && (
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">
+        <div className="bg-white rounded-lg shadow p-4 lg:p-6 mb-6">
+          <h2 className="text-xl lg:text-2xl font-semibold mb-4 text-slate-700">
             {editItem ? 'Edit Footer Link' : 'Tambah Footer Link'}
           </h2>
           <form onSubmit={handleFooterSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
-              <select
-                value={footerFormData.category}
-                onChange={(e) => setFooterFormData({ ...footerFormData, category: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="naia">Naia</option>
-                <option value="products">Products</option>
-                <option value="resources">Resources</option>
-                <option value="support">Support</option>
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Kategori</label>
+                <select
+                  value={footerFormData.category}
+                  onChange={(e) => setFooterFormData({ ...footerFormData, category: e.target.value })}
+                  className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+                  <option value="naia">Naia</option>
+                  <option value="products">Products</option>
+                  <option value="resources">Resources</option>
+                  <option value="support">Support</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Posisi</label>
+                <input
+                  type="number"
+                  value={footerFormData.position}
+                  onChange={(e) => setFooterFormData({ ...footerFormData, position: parseInt(e.target.value) })}
+                  required
+                  className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Label</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Label</label>
               <input
                 type="text"
                 value={footerFormData.label}
                 onChange={(e) => setFooterFormData({ ...footerFormData, label: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Link</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Link</label>
               <input
                 type="text"
                 value={footerFormData.href}
                 onChange={(e) => setFooterFormData({ ...footerFormData, href: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Posisi</label>
-              <input
-                type="number"
-                value={footerFormData.position}
-                onChange={(e) => setFooterFormData({ ...footerFormData, position: parseInt(e.target.value) })}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
             <div className="flex items-center">
@@ -331,15 +347,15 @@ export default function FooterManagementPage() {
                 type="checkbox"
                 checked={footerFormData.is_active}
                 onChange={(e) => setFooterFormData({ ...footerFormData, is_active: e.target.checked })}
-                className="mr-2"
+                className="mr-2 h-4 w-4 text-primary focus:ring-primary border-slate-300 rounded"
               />
-              <label className="text-sm font-medium text-gray-700">Aktif</label>
+              <label className="text-sm font-medium text-slate-700">Aktif</label>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button type="submit" className="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-secondary">
                 {editItem ? 'Update' : 'Simpan'}
               </button>
-              <button type="button" onClick={resetForm} className="px-6 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400">
+              <button type="button" onClick={resetForm} className="px-4 sm:px-6 bg-slate-300 text-slate-700 py-2 rounded-lg hover:bg-slate-400">
                 Batal
               </button>
             </div>
@@ -349,49 +365,51 @@ export default function FooterManagementPage() {
 
       {/* Social Links Form */}
       {showForm && activeTab === 'social' && (
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">
+        <div className="bg-white rounded-lg shadow p-4 lg:p-6 mb-6">
+          <h2 className="text-xl lg:text-2xl font-semibold mb-4 text-slate-700">
             {editItem ? 'Edit Social Link' : 'Tambah Social Link'}
           </h2>
           <form onSubmit={handleSocialSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nama</label>
-              <input
-                type="text"
-                value={socialFormData.name}
-                onChange={(e) => setSocialFormData({ ...socialFormData, name: e.target.value })}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Nama</label>
+                <input
+                  type="text"
+                  value={socialFormData.name}
+                  onChange={(e) => setSocialFormData({ ...socialFormData, name: e.target.value })}
+                  required
+                  className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Posisi</label>
+                <input
+                  type="number"
+                  value={socialFormData.position}
+                  onChange={(e) => setSocialFormData({ ...socialFormData, position: parseInt(e.target.value) })}
+                  required
+                  className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Link</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Link</label>
               <input
                 type="text"
                 value={socialFormData.href}
                 onChange={(e) => setSocialFormData({ ...socialFormData, href: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">SVG Icon Code</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">SVG Icon Code</label>
               <textarea
                 value={socialFormData.icon_svg}
                 onChange={(e) => setSocialFormData({ ...socialFormData, icon_svg: e.target.value })}
                 required
                 rows="4"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Posisi</label>
-              <input
-                type="number"
-                value={socialFormData.position}
-                onChange={(e) => setSocialFormData({ ...socialFormData, position: parseInt(e.target.value) })}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 lg:px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent font-mono text-sm"
               />
             </div>
             <div className="flex items-center">
@@ -399,15 +417,15 @@ export default function FooterManagementPage() {
                 type="checkbox"
                 checked={socialFormData.is_active}
                 onChange={(e) => setSocialFormData({ ...socialFormData, is_active: e.target.checked })}
-                className="mr-2"
+                className="mr-2 h-4 w-4 text-primary focus:ring-primary border-slate-300 rounded"
               />
-              <label className="text-sm font-medium text-gray-700">Aktif</label>
+              <label className="text-sm font-medium text-slate-700">Aktif</label>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button type="submit" className="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-secondary">
                 {editItem ? 'Update' : 'Simpan'}
               </button>
-              <button type="button" onClick={resetForm} className="px-6 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400">
+              <button type="button" onClick={resetForm} className="px-4 sm:px-6 bg-slate-300 text-slate-700 py-2 rounded-lg hover:bg-slate-400">
                 Batal
               </button>
             </div>
@@ -415,75 +433,175 @@ export default function FooterManagementPage() {
         </div>
       )}
 
-      {/* Footer Links Table */}
+      {/* Desktop Table View - Footer Links */}
       {activeTab === 'footer' && (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kategori</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Label</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Link</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Posisi</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {footerLinks.map((item) => (
-                <tr key={item.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">{item.category}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.label}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.href}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.position}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs rounded-full ${item.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {item.is_active ? 'Aktif' : 'Nonaktif'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button onClick={() => handleEdit(item, 'footer')} className="text-blue-600 hover:text-blue-900 mr-4">Edit</button>
-                    <button onClick={() => handleDelete(item.id, 'footer')} className="text-red-600 hover:text-red-900">Hapus</button>
-                  </td>
+        <div className="hidden lg:block bg-white rounded-lg shadow overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Kategori</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Label</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Link</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Posisi</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Status</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-700 uppercase">Aksi</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-slate-200">
+                {footerLinks.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50">
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-700 capitalize">{item.category}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-slate-700">{item.label}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-700">{item.href}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-700">{item.position}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs rounded-full ${item.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {item.is_active ? 'Aktif' : 'Nonaktif'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                      <button onClick={() => handleEdit(item, 'footer')} className="bg-blue-600 mr-2 py-1 px-2 text-white font-medium rounded-lg">Edit</button>
+                      <button onClick={() => handleDelete(item.id, 'footer')} className="bg-red-600 py-1 px-2 text-white font-medium rounded-lg">Hapus</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
-      {/* Social Links Table */}
+      {/* Mobile Card View - Footer Links */}
+      {activeTab === 'footer' && (
+        <div className="lg:hidden space-y-4">
+          {footerLinks.map((item) => (
+            <div key={item.id} className="bg-white rounded-lg shadow p-4">
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex-1">
+                  <p className="font-semibold text-slate-700 mb-1">{item.label}</p>
+                  <p className="text-xs text-slate-500">Kategori: {item.category} | Posisi: {item.position}</p>
+                </div>
+                <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ${item.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {item.is_active ? 'Aktif' : 'Nonaktif'}
+                </span>
+              </div>
+              
+              <div className="mb-3">
+                <p className="text-sm text-slate-700 break-all">{item.href}</p>
+              </div>
+
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => handleEdit(item, 'footer')} 
+                  className="flex-1 bg-blue-600 py-2 text-white font-medium rounded-lg text-sm"
+                >
+                  Edit
+                </button>
+                <button 
+                  onClick={() => handleDelete(item.id, 'footer')} 
+                  className="flex-1 bg-red-600 py-2 text-white font-medium rounded-lg text-sm"
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Desktop Table View - Social Links */}
       {activeTab === 'social' && (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Link</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Posisi</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {socialLinks.map((item) => (
-                <tr key={item.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.href}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.position}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs rounded-full ${item.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {item.is_active ? 'Aktif' : 'Nonaktif'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button onClick={() => handleEdit(item, 'social')} className="text-blue-600 hover:text-blue-900 mr-4">Edit</button>
-                    <button onClick={() => handleDelete(item.id, 'social')} className="text-red-600 hover:text-red-900">Hapus</button>
-                  </td>
+        <div className="hidden lg:block bg-white rounded-lg shadow overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Nama</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Link</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Posisi</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Status</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-700 uppercase">Aksi</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-slate-200">
+                {socialLinks.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50">
+                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-slate-700">{item.name}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-700">{item.href}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-700">{item.position}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs rounded-full ${item.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {item.is_active ? 'Aktif' : 'Nonaktif'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                      <button onClick={() => handleEdit(item, 'social')} className="bg-blue-600 mr-2 py-1 px-2 text-white font-medium rounded-lg">Edit</button>
+                      <button onClick={() => handleDelete(item.id, 'social')} className="bg-red-600 py-1 px-2 text-white font-medium rounded-lg">Hapus</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Card View - Social Links */}
+      {activeTab === 'social' && (
+        <div className="lg:hidden space-y-4">
+          {socialLinks.map((item) => (
+            <div key={item.id} className="bg-white rounded-lg shadow p-4">
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex-1">
+                  <p className="font-semibold text-slate-700 mb-1">{item.name}</p>
+                  <p className="text-xs text-slate-500">Posisi: {item.position}</p>
+                </div>
+                <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ${item.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {item.is_active ? 'Aktif' : 'Nonaktif'}
+                </span>
+              </div>
+              
+              <div className="mb-3">
+                <p className="text-sm text-slate-700 break-all">{item.href}</p>
+              </div>
+
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => handleEdit(item, 'social')} 
+                  className="flex-1 bg-blue-600 py-2 text-white font-medium rounded-lg text-sm"
+                >
+                  Edit
+                </button>
+                <button 
+                  onClick={() => handleDelete(item.id, 'social')} 
+                  className="flex-1 bg-red-600 py-2 text-white font-medium rounded-lg text-sm"
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Empty State - Footer Links */}
+      {activeTab === 'footer' && footerLinks.length === 0 && (
+        <div className="bg-white rounded-lg shadow p-8 text-center">
+          <svg className="w-16 h-16 mx-auto text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+          <p className="text-slate-700">Tidak ada footer link yang tersedia</p>
+        </div>
+      )}
+
+      {/* Empty State - Social Links */}
+      {activeTab === 'social' && socialLinks.length === 0 && (
+        <div className="bg-white rounded-lg shadow p-8 text-center">
+          <svg className="w-16 h-16 mx-auto text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+          </svg>
+          <p className="text-slate-700">Tidak ada social link yang tersedia</p>
         </div>
       )}
     </div>

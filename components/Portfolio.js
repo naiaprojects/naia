@@ -60,10 +60,10 @@ export default function Portfolio() {
     <section className="py-8 sm:py-12" id="porto">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="pb-6 sm:pb-16">
-          <h1 className="max-w-2xl mx-auto text-center font-bold text-4xl text-primary mb-5 md:text-6xl leading-[50px]">
+          <h1 className="max-w-2xl mx-auto text-center font-bold text-4xl text-slate-700 mb-5 md:text-6xl leading-[50px]">
             Portofolio
           </h1>
-          <p className="sm:max-w-2xl sm:mx-auto text-center text-base font-normal leading-7 text-gray-500 mb-9">
+          <p className="sm:max-w-2xl sm:mx-auto text-center text-base font-normal leading-7 text-slate-700 mb-9">
             Dari UMKM hingga korporasi besar, mereka telah mempercayakan desainnya kepada kami.
           </p>
         </div>

@@ -15,7 +15,7 @@ export default async function DashboardLayout({ children }) {
   return (
     <div className="min-h-screen bg-gray-100 flex">
       <DashboardNav user={user} />
-      <main className="flex-1 p-8">
+      <main className="flex-1 sm:p-8 p-4">
         {children}
       </main>
     </div>
