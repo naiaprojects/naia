@@ -319,7 +319,6 @@ export default function DashboardPage() {
                     <th className="px-3 lg:px-4 py-2 lg:py-3 text-left text-xs font-medium text-slate-700 uppercase hidden sm:table-cell">Pelanggan</th>
                     <th className="px-3 lg:px-4 py-2 lg:py-3 text-left text-xs font-medium text-slate-700 uppercase">Paket</th>
                     <th className="px-3 lg:px-4 py-2 lg:py-3 text-left text-xs font-medium text-slate-700 uppercase">Nominal</th>
-                    <th className="px-3 lg:px-4 py-2 lg:py-3 text-left text-xs font-medium text-slate-700 uppercase">Status</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-200">
@@ -329,16 +328,6 @@ export default function DashboardPage() {
                       <td className="px-3 lg:px-4 py-2 lg:py-3 text-xs lg:text-sm text-slate-700 hidden sm:table-cell">{order.customer_name}</td>
                       <td className="px-3 lg:px-4 py-2 lg:py-3 text-xs lg:text-sm text-slate-700 max-w-[100px] truncate">{order.package_name}</td>
                       <td className="px-3 lg:px-4 py-2 lg:py-3 text-xs lg:text-sm text-slate-700 whitespace-nowrap">{formatPrice(order.package_price)}</td>
-                      <td className="px-3 lg:px-4 py-2 lg:py-3 text-xs lg:text-sm">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                          order.payment_status === 'verified' ? 'bg-green-100 text-green-800' :
-                          order.payment_status === 'rejected' ? 'bg-red-100 text-red-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {order.payment_status === 'verified' ? 'Terverifikasi' :
-                           order.payment_status === 'rejected' ? 'Ditolak' : 'Pending'}
-                        </span>
-                      </td>
                     </tr>
                   ))}
                 </tbody>

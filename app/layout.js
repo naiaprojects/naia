@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase-server';
 import SupabaseProvider from '@/components/supabase-provider';
 import { Inter } from "next/font/google";
 import "./globals.css";
-import PageViewTracker from '@/components/PageViewTracker'; // ← Tambahkan ini
+import PageViewTracker from '@/components/PageViewTracker';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -67,6 +67,16 @@ export async function generateMetadata() {
     },
     referrer: 'no-referrer-when-downgrade',
     keywords: settings.meta_keywords?.split(',') || [],
+    
+    // --- Tambahkan Konfigurasi PWA di sini ---
+    manifest: '/manifest.json', // Menunjuk ke file manifest Anda
+    themeColor: '#0d9488', // Warna tema untuk browser UI
+    icons: {
+      icon: '/icons/icon-192x192.png',
+      apple: '/icons/icon-192x192.png',
+    },
+    // --- Akhir Konfigurasi PWA ---
+
     openGraph: {
       description: settings.site_description || '',
       locale: 'id_ID',
@@ -103,6 +113,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="id">
       <head>
+        {/* Tidak perlu menambahkan link manual di sini, karena generateMetadata akan menanganinya */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
