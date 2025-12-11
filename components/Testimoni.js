@@ -92,6 +92,7 @@ const Testimoni = ({ data = [] }) => {
                 </SwiperSlide>
               ))}
             </Swiper>
+          )}
         </div>
       </section>
 
