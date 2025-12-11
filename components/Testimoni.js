@@ -46,48 +46,52 @@ const Testimoni = ({ data = [] }) => {
           </div>
 
           {/* Swiper Slider */}
-          <Swiper
-            modules={[Autoplay]}
-            spaceBetween={16}
-            slidesPerView={2}
-            loop={true}
-            autoplay={{
-              delay: 3000,
-              disableOnInteraction: false,
-            }}
-            breakpoints={{
-              640: {
-                slidesPerView: 3,
-                spaceBetween: 16,
-              },
-              768: {
-                slidesPerView: 4,
-                spaceBetween: 16,
-              },
-              1024: {
-                slidesPerView: 5,
-                spaceBetween: 16,
-              },
-            }}
-            className="testimoni-swiper"
-          >
-            {data.map((image, index) => (
-              <SwiperSlide key={image.id}>
-                <div
-                  className="w-full cursor-pointer group"
-                  data-index={index}
-                  onClick={() => openModal(image)}
-                >
-                  <img
-                    src={image.image}
-                    alt={image.alt}
-                    className="w-full transition-transform duration-300 group-hover:scale-105 rounded-lg"
-                    loading="lazy"
-                  />
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          {data.length > 0 && (
+            <Swiper
+              modules={[Autoplay]}
+              spaceBetween={16}
+              slidesPerView={2}
+              loop={data.length >= 5}
+              loopAdditionalSlides={3}
+              autoplay={{
+                delay: 3000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: false,
+              }}
+              speed={800}
+              breakpoints={{
+                640: {
+                  slidesPerView: 3,
+                  spaceBetween: 16,
+                },
+                768: {
+                  slidesPerView: 4,
+                  spaceBetween: 16,
+                },
+                1024: {
+                  slidesPerView: 5,
+                  spaceBetween: 16,
+                },
+              }}
+              className="testimoni-swiper"
+            >
+              {data.map((image, index) => (
+                <SwiperSlide key={image.id}>
+                  <div
+                    className="w-full cursor-pointer group"
+                    data-index={index}
+                    onClick={() => openModal(image)}
+                  >
+                    <img
+                      src={image.image}
+                      alt={image.alt}
+                      className="w-full transition-transform duration-300 group-hover:scale-105 rounded-lg"
+                      loading="lazy"
+                    />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
         </div>
       </section>
 
