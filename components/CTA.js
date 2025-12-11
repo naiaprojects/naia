@@ -1,51 +1,29 @@
 // components/CTA.js
 "use client";
 
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-const CTA = () => {
+const CTA = ({ data = {} }) => {
   const router = useRouter();
-  const [ctaData, setCtaData] = useState({
-    cta_title: 'Saatnya Punya Website yang Berkelas',
-    cta_subtitle: 'Meski pakai Blogspot, websitemu bisa tampil profesional, ringan, dan SEO-friendly.',
-    cta_background_image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQURFZv63UernQRlg8fAFzNp6fn7ugpbKDDhbothv6W-s6p8-CRV3YakUJkwfi07mfDcVJxTwYgf_5O88U5YByKEx1W-tE5z8Kkk8V5ExtcGbWgn0hFU6FTp5Eg1lFstjPp8aX33MgPs6XJd3TcysXZ5UIuLy2VtNq6aPAWakWe2BFcEL7Je0GkGI_744/s3000/19381187_6125995.webp',
-    cta_button_text: 'Hubungi Kami Sekarang!',
-    cta_button_portfolio_text: 'Lihat Portofolio',
-    whatsapp_number: '6281320858595',
-    whatsapp_message: 'Halo Naia.web.id! Saya tertarik dengan layanan pembuatan website custom Blogspot Anda. Bisa dibantu?'
-  });
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchCTAData();
-  }, []);
-
-  const fetchCTAData = async () => {
-    try {
-      const response = await fetch('/api/settings');
-      if (!response.ok) throw new Error('Failed to fetch settings');
-      const data = await response.json();
-      setCtaData(prev => ({ ...prev, ...data }));
-    } catch (error) {
-      console.error('Error fetching CTA data:', error);
-    } finally {
-      setLoading(false);
-    }
+  const ctaData = {
+    cta_title: data.cta_title || 'Time to Have a Classy Website',
+    cta_subtitle: data.cta_subtitle || 'Even with Blogspot, your website can look professional, lightweight, and SEO-friendly.',
+    cta_background_image: data.cta_background_image || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQURFZv63UernQRlg8fAFzNp6fn7ugpbKDDhbothv6W-s6p8-CRV3YakUJkwfi07mfDcVJxTwYgf_5O88U5YByKEx1W-tE5z8Kkk8V5ExtcGbWgn0hFU6FTp5Eg1lFstjPp8aX33MgPs6XJd3TcysXZ5UIuLy2VtNq6aPAWakWe2BFcEL7Je0GkGI_744/s3000/19381187_6125995.webp',
+    cta_button_text: data.cta_button_text || 'Contact Us Now!',
+    cta_button_portfolio_text: data.cta_button_portfolio_text || 'View Portfolio',
+    whatsapp_number: data.whatsapp_number || '6281320858595',
+    whatsapp_message: data.whatsapp_message || 'Hello Naia.web.id! I am interested in your custom Blogspot website service. Can you help?'
   };
 
   const handleWhatsAppClick = () => {
-    const message = ctaData.whatsapp_message || 'Halo!';
+    const message = ctaData.whatsapp_message || 'Hello!';
     window.open(`https://wa.me/${ctaData.whatsapp_number}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const handlePortfolioClick = () => {
     router.push('#porto');
   };
-
-  if (loading) {
-    return null;
-  }
 
   return (
     <section

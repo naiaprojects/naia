@@ -1,40 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-const ServicesList = () => {
-    const [services, setServices] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        fetchServices();
-    }, []);
-
-    const fetchServices = async () => {
-        try {
-            const response = await fetch('/api/services');
-            if (!response.ok) throw new Error('Failed to fetch services');
-            const data = await response.json();
-            setServices(data || []);
-        } catch (error) {
-            console.error('Error fetching services:', error);
-            setServices([]);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (loading) {
-        return (
-            <section className="py-8 sm:py-32" id="price">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-                    <p>Memuat layanan...</p>
-                </div>
-            </section>
-        );
-    }
-
+const ServicesList = ({ data = [] }) => {
     return (
         <section className="py-8 sm:py-32" id="price">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -47,7 +15,7 @@ const ServicesList = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {services.map((service) => (
+                        {data.map((service) => (
                             <Link
                                 key={service.id}
                                 href={`/services/${service.slug}`}
@@ -88,7 +56,7 @@ const ServicesList = () => {
                         ))}
                     </div>
 
-                    {services.length === 0 && (
+                    {data.length === 0 && (
                         <div className="text-center py-12 bg-slate-50 rounded-lg">
                             <p className="text-slate-500">Belum ada layanan yang tersedia.</p>
                         </div>

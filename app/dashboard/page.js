@@ -28,6 +28,7 @@ export default function DashboardPage() {
     byCountry: [],
     bySource: [],
   });
+  const [pendingOrders, setPendingOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [chartLoaded, setChartLoaded] = useState(false);
   const mapRef = useRef(null);
@@ -93,6 +94,7 @@ export default function DashboardPage() {
       fetchOrderStats(),
       fetchContentStats(),
       fetchVisitorStats(),
+      fetchPendingOrders(),
     ]);
     setLoading(false);
   };
@@ -176,8 +178,8 @@ export default function DashboardPage() {
         lastMonthCount > 0
           ? Math.round(((monthCount - lastMonthCount) / lastMonthCount) * 100)
           : monthCount > 0
-          ? 100
-          : 0;
+            ? 100
+            : 0;
 
       setOrderStats({
         thisWeek: weekCount || 0,
@@ -327,6 +329,39 @@ export default function DashboardPage() {
     }
   };
 
+  const fetchPendingOrders = async () => {
+    const supabase = createClient();
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("payment_status", "pending")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+      setPendingOrders(data || []);
+    } catch (error) {
+      console.error("Error fetching pending orders:", error);
+    }
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const formatDate = (date) => {
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }).format(new Date(date));
+  };
+
   const getCountryFlag = (countryCode) => {
     // Convert country code to flag emoji
     if (!countryCode || countryCode === "XX")
@@ -471,11 +506,10 @@ export default function DashboardPage() {
               {orderStats.thisMonth}
             </p>
             <span
-              className={`text-xs font-medium px-2 py-1 rounded-full ${
-                orderStats.percentChange >= 0
-                  ? "text-emerald-600 bg-emerald-50"
-                  : "text-red-600 bg-red-50"
-              }`}
+              className={`text-xs font-medium px-2 py-1 rounded-full ${orderStats.percentChange >= 0
+                ? "text-emerald-600 bg-emerald-50"
+                : "text-red-600 bg-red-50"
+                }`}
             >
               {orderStats.percentChange >= 0 ? "+" : ""}
               {orderStats.percentChange}%
@@ -719,57 +753,57 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Top Channels */}
+          {/* Pending Orders */}
           <div className="bg-white rounded-2xl border border-slate-200 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-slate-800">Top Channels</h2>
-              <button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400">
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M10.2441 6C10.2441 5.0335 11.0276 4.25 11.9941 4.25H12.0041C12.9706 4.25 13.7541 5.0335 13.7541 6C13.7541 6.9665 12.9706 7.75 12.0041 7.75H11.9941C11.0276 7.75 10.2441 6.9665 10.2441 6ZM10.2441 18C10.2441 17.0335 11.0276 16.25 11.9941 16.25H12.0041C12.9706 16.25 13.7541 17.0335 13.7541 18C13.7541 18.9665 12.9706 19.75 12.0041 19.75H11.9941C11.0276 19.75 10.2441 18.9665 10.2441 18ZM11.9941 10.25C11.0276 10.25 10.2441 11.0335 10.2441 12C10.2441 12.9665 11.0276 13.75 11.9941 13.75H12.0041C12.9706 13.75 13.7541 12.9665 13.7541 12C13.7541 11.0335 12.9706 10.25 12.0041 10.25H11.9941Z"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div className="flex justify-between text-xs text-slate-500 mb-3 px-1">
-              <span>Source</span>
-              <span>Visitors</span>
+              <h2 className="text-lg font-bold text-slate-800">Pending Orders</h2>
+              <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
+                {pendingOrders.length} pending
+              </span>
             </div>
 
             <div className="space-y-3">
-              {visitorStats.bySource.length === 0 ? (
+              {pendingOrders.length === 0 ? (
                 <p className="text-sm text-slate-500 text-center py-4">
-                  No source data available
+                  No pending orders
                 </p>
               ) : (
-                visitorStats.bySource.map((source, index) => (
+                pendingOrders.map((order) => (
                   <div
-                    key={index}
-                    className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors"
+                    key={order.id}
+                    className="p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
                   >
-                    <span className="text-slate-700 font-medium">
-                      {source.source}
-                    </span>
-                    <span className="text-primary font-medium">
-                      {formatNumber(source.visitors)}
-                    </span>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold text-slate-800 truncate">
+                          {order.invoice_number}
+                        </p>
+                        <p className="text-xs text-slate-500 truncate">
+                          {order.customer_name}
+                        </p>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border bg-amber-50 text-amber-600 border-amber-100 whitespace-nowrap">
+                        Pending
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-200">
+                      <span className="text-xs text-slate-500">
+                        {formatDate(order.created_at)}
+                      </span>
+                      <span className="text-sm font-bold text-primary">
+                        {formatPrice(order.package_price)}
+                      </span>
+                    </div>
                   </div>
                 ))
               )}
             </div>
 
             <Link
-              href="/dashboard/analytics"
+              href="/dashboard/invoices?status=pending"
               className="mt-4 flex items-center justify-center gap-2 w-full py-3 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
             >
-              Channels Report
+              View All Pending
               <svg
                 className="w-4 h-4"
                 fill="none"

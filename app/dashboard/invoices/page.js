@@ -125,7 +125,7 @@ export default function InvoicesPage() {
         try {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
-                showMessage('Error: Anda harus login untuk verifikasi pembayaran', 'error');
+                showMessage('Error: You must be logged in to verify payment', 'error');
                 return;
             }
 
@@ -143,7 +143,7 @@ export default function InvoicesPage() {
 
             if (error) throw error;
 
-            showMessage(`Pembayaran berhasil ${status === 'verified' ? 'diverifikasi' : 'ditolak'}!`);
+            showMessage(`Payment successfully ${status === 'verified' ? 'verified' : 'rejected'}!`);
             fetchData();
             setShowDetailModal(false);
         } catch (error) {
@@ -163,7 +163,7 @@ export default function InvoicesPage() {
     };
 
     const formatDate = (date) => {
-        return new Intl.DateTimeFormat('id-ID', {
+        return new Intl.DateTimeFormat('en-US', {
             day: 'numeric',
             month: 'long',
             year: 'numeric',
@@ -196,9 +196,9 @@ export default function InvoicesPage() {
 
     const getStatusConfig = (status) => {
         const configs = {
-            pending: { color: 'bg-amber-50 text-amber-600 border-amber-100', label: 'Menunggu Verifikasi', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
-            verified: { color: 'bg-emerald-50 text-emerald-600 border-emerald-100', label: 'Terverifikasi', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
-            rejected: { color: 'bg-red-50 text-red-600 border-red-100', label: 'Ditolak', icon: 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z' }
+            pending: { color: 'bg-amber-50 text-amber-600 border-amber-100', label: 'Pending Verification', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+            verified: { color: 'bg-emerald-50 text-emerald-600 border-emerald-100', label: 'Verified', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+            rejected: { color: 'bg-red-50 text-red-600 border-red-100', label: 'Rejected', icon: 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z' }
         };
         return configs[status] || { color: 'bg-slate-50 text-slate-600 border-slate-100', label: status, icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' };
     };
@@ -220,7 +220,7 @@ export default function InvoicesPage() {
                     <div>
                         <Breadcrumb />
                         <h1 className="text-3xl font-bold text-slate-800 tracking-tight mt-2">Invoice Management</h1>
-                        <p className="text-slate-500 mt-1">Kelola dan verifikasi pesanan pelanggan</p>
+                        <p className="text-slate-500 mt-1">Manage and verify customer orders</p>
                     </div>
                 </div>
 
@@ -238,7 +238,7 @@ export default function InvoicesPage() {
                                     : 'text-slate-500 hover:text-slate-700'
                                     }`}
                             >
-                                {status === 'all' ? 'Semua Status' : status}
+                                {status === 'all' ? 'All Status' : status}
                             </button>
                         ))}
                     </div>
@@ -251,7 +251,7 @@ export default function InvoicesPage() {
                             </svg>
                             <input
                                 type="text"
-                                placeholder="Cari invoice, nama, email..."
+                                placeholder="Search invoice, name, email..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"

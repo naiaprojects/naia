@@ -1,40 +1,14 @@
 // components/Portfolio.js
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-export default function Portfolio() {
+export default function Portfolio({ data = [] }) {
   const [showModal, setShowModal] = useState(false);
   const [modalData, setModalData] = useState({ image: '', title: '', link: '' });
   const [showAll, setShowAll] = useState(false);
 
-  // State untuk data, loading, dan error
-  const [portfolioData, setPortfolioData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Gunakan useEffect untuk mengambil data saat komponen dimuat
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/portfolio');
-        if (!response.ok) {
-          throw new Error('Failed to fetch portfolio data');
-        }
-        const data = await response.json();
-        setPortfolioData(data);
-      } catch (error) {
-        console.error(error);
-        // Opsional: Set data kosong jika terjadi error
-        setPortfolioData([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []); // Array kosong berarti efek ini hanya berjalan sekali saat mount
-
   // Tampilkan 3 pertama atau semua
-  const displayedPortfolio = showAll ? portfolioData : portfolioData.slice(0, 3);
+  const displayedPortfolio = showAll ? data : data.slice(0, 3);
 
   const openModal = (item) => {
     setModalData(item);
@@ -44,17 +18,6 @@ export default function Portfolio() {
   const closeModal = () => {
     setShowModal(false);
   };
-
-  // Tampilkan loading jika data belum siap
-  if (isLoading) {
-    return (
-      <section className="py-8 sm:py-12" id="porto">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <p>Memuat portofolio...</p>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className="py-8 sm:py-32" id="porto">
@@ -111,7 +74,7 @@ export default function Portfolio() {
           ))}
         </div>
 
-        {portfolioData.length > 3 && (
+        {data.length > 3 && (
           <div className="mt-16">
             <div className="flex justify-center gap-2">
               <button
