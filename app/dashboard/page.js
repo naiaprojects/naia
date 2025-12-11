@@ -1,447 +1,835 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase-client';
-import Link from 'next/link';
-import Breadcrumb from '@/components/Breadcrumb';
-import LogoPathAnimation from '@/components/LogoPathAnimation';
+import { useState, useEffect, useRef } from "react";
+import { createClient } from "@/lib/supabase-client";
+import Link from "next/link";
+import dynamic from "next/dynamic";
+import LogoPathAnimation from "@/components/LogoPathAnimation";
+
+// Dynamic import for ApexCharts (client-side only)
+const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function DashboardPage() {
-  const [orderPeriod, setOrderPeriod] = useState('thisMonth');
-  const [orderStats, setOrderStats] = useState({ count: 0, revenue: 0, orders: [] });
-  const [contentStats, setContentStats] = useState({ portfolio: 0, testimonials: 0, bankAccounts: 0 });
-  const [visitorStats, setVisitorStats] = useState({
-    today: 0,
+  const [orderStats, setOrderStats] = useState({
+    thisWeek: 0,
     thisMonth: 0,
     thisYear: 0,
-    lastMonth: 0,
-    lastYear: 0,
-    byCountry: []
+    allTime: 0,
+    percentChange: 0,
+    monthlyData: [],
+  });
+  const [contentStats, setContentStats] = useState({
+    orders: { total: 0, thisMonth: 0 },
+    portfolio: { total: 0, thisMonth: 0 },
+    services: { total: 0, thisMonth: 0 },
+    testimonials: { total: 0, thisMonth: 0 },
+  });
+  const [visitorStats, setVisitorStats] = useState({
+    byCountry: [],
+    bySource: [],
   });
   const [loading, setLoading] = useState(true);
+  const [chartLoaded, setChartLoaded] = useState(false);
+  const mapRef = useRef(null);
+  const mapInstance = useRef(null);
 
   useEffect(() => {
     fetchAllStats();
-  }, [orderPeriod]);
+    setChartLoaded(true);
+  }, []);
+
+  // Initialize map after data loaded
+  useEffect(() => {
+    if (
+      !loading &&
+      typeof window !== "undefined" &&
+      mapRef.current &&
+      !mapInstance.current
+    ) {
+      initMap();
+    }
+    return () => {
+      if (mapInstance.current) {
+        mapInstance.current.destroy();
+        mapInstance.current = null;
+      }
+    };
+  }, [loading, visitorStats.byCountry]);
+
+  const initMap = async () => {
+    try {
+      const jsVectorMap = (await import("jsvectormap")).default;
+      await import("jsvectormap/dist/maps/world.js");
+
+      if (mapRef.current && !mapInstance.current) {
+        mapInstance.current = new jsVectorMap({
+          selector: mapRef.current,
+          map: "world",
+          zoomButtons: false,
+          zoomOnScroll: false,
+          regionStyle: {
+            initial: {
+              fill: "#D1D5DB",
+              fillOpacity: 1,
+              stroke: "none",
+              strokeWidth: 0,
+            },
+            hover: {
+              fillOpacity: 0.8,
+              cursor: "pointer",
+            },
+          },
+          backgroundColor: "transparent",
+        });
+      }
+    } catch (error) {
+      console.error("Error initializing map:", error);
+    }
+  };
 
   const fetchAllStats = async () => {
     setLoading(true);
     await Promise.all([
       fetchOrderStats(),
       fetchContentStats(),
-      fetchVisitorStats()
+      fetchVisitorStats(),
     ]);
     setLoading(false);
   };
 
   const fetchOrderStats = async () => {
     const supabase = createClient();
+    const now = new Date();
+
     try {
-      let query = supabase.from('orders').select('*');
+      // This Week
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay());
+      weekStart.setHours(0, 0, 0, 0);
+      const { count: weekCount } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", weekStart.toISOString());
 
-      const now = new Date();
-      let startDate;
+      // This Month
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const { count: monthCount } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", monthStart.toISOString());
 
-      switch (orderPeriod) {
-        case 'thisMonth':
-          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-          query = query.gte('created_at', startDate.toISOString());
-          break;
-        case 'lastMonth':
-          startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-          const endDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
-          query = query.gte('created_at', startDate.toISOString()).lte('created_at', endDate.toISOString());
-          break;
-        case 'lastYear':
-          startDate = new Date(now.getFullYear() - 1, 0, 1);
-          const endYear = new Date(now.getFullYear() - 1, 11, 31, 23, 59, 59);
-          query = query.gte('created_at', startDate.toISOString()).lte('created_at', endYear.toISOString());
-          break;
-        case 'all':
-          break;
+      // Last Month (for comparison)
+      const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const lastMonthEnd = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        0,
+        23,
+        59,
+        59
+      );
+      const { count: lastMonthCount } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", lastMonthStart.toISOString())
+        .lte("created_at", lastMonthEnd.toISOString());
+
+      // This Year
+      const yearStart = new Date(now.getFullYear(), 0, 1);
+      const { count: yearCount } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", yearStart.toISOString());
+
+      // All Time
+      const { count: allCount } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true });
+
+      // Monthly data for chart (last 12 months)
+      const monthlyData = [];
+      for (let i = 11; i >= 0; i--) {
+        const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const monthEnd = new Date(
+          now.getFullYear(),
+          now.getMonth() - i + 1,
+          0,
+          23,
+          59,
+          59
+        );
+
+        const { count } = await supabase
+          .from("orders")
+          .select("*", { count: "exact", head: true })
+          .gte("created_at", monthDate.toISOString())
+          .lte("created_at", monthEnd.toISOString());
+
+        monthlyData.push({
+          month: monthDate.toLocaleDateString("en-US", { month: "short" }),
+          count: count || 0,
+        });
       }
 
-      const { data, error } = await query.order('created_at', { ascending: false });
+      // Calculate percentage change
+      const percentChange =
+        lastMonthCount > 0
+          ? Math.round(((monthCount - lastMonthCount) / lastMonthCount) * 100)
+          : monthCount > 0
+          ? 100
+          : 0;
 
-      if (!error && data) {
-        const revenue = data.reduce((sum, order) => sum + (order.package_price || 0), 0);
-        setOrderStats({ count: data.length, revenue, orders: data });
-      }
+      setOrderStats({
+        thisWeek: weekCount || 0,
+        thisMonth: monthCount || 0,
+        thisYear: yearCount || 0,
+        allTime: allCount || 0,
+        lastMonth: lastMonthCount || 0,
+        percentChange,
+        monthlyData,
+      });
     } catch (error) {
-      console.error('Error fetching order stats:', error);
+      console.error("Error fetching order stats:", error);
     }
   };
 
   const fetchContentStats = async () => {
     const supabase = createClient();
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
     try {
-      const [portfolioRes, testimonialRes, bankRes] = await Promise.all([
-        supabase.from('portfolio_items').select('id', { count: 'exact', head: true }),
-        supabase.from('testimoni_items').select('id', { count: 'exact', head: true }),
-        supabase.from('bank_accounts').select('*').eq('is_active', true)
-      ]);
+      // Orders
+      const { count: ordersTotal } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true });
+      const { count: ordersMonth } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", monthStart.toISOString());
+
+      // Portfolio
+      const { count: portfolioTotal } = await supabase
+        .from("portfolio_items")
+        .select("*", { count: "exact", head: true });
+      const { count: portfolioMonth } = await supabase
+        .from("portfolio_items")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", monthStart.toISOString());
+
+      // Services
+      const { count: servicesTotal } = await supabase
+        .from("services")
+        .select("*", { count: "exact", head: true });
+      const { count: servicesMonth } = await supabase
+        .from("services")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", monthStart.toISOString());
+
+      // Testimonials
+      const { count: testimonialsTotal } = await supabase
+        .from("testimoni_items")
+        .select("*", { count: "exact", head: true });
+      const { count: testimonialsMonth } = await supabase
+        .from("testimoni_items")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", monthStart.toISOString());
 
       setContentStats({
-        portfolio: portfolioRes.count || 0,
-        testimonials: testimonialRes.count || 0,
-        bankAccounts: bankRes.data?.length || 0
+        orders: { total: ordersTotal || 0, thisMonth: ordersMonth || 0 },
+        portfolio: {
+          total: portfolioTotal || 0,
+          thisMonth: portfolioMonth || 0,
+        },
+        services: { total: servicesTotal || 0, thisMonth: servicesMonth || 0 },
+        testimonials: {
+          total: testimonialsTotal || 0,
+          thisMonth: testimonialsMonth || 0,
+        },
       });
     } catch (error) {
-      console.error('Error fetching content stats:', error);
+      console.error("Error fetching content stats:", error);
     }
   };
 
   const fetchVisitorStats = async () => {
     const supabase = createClient();
     const now = new Date();
+    const monthStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      1
+    ).toISOString();
 
-    const getStartOfDay = (date) => new Date(date.setHours(0, 0, 0, 0)).toISOString();
+    try {
+      // By Country
+      const { data: countryData } = await supabase
+        .from("page_views")
+        .select("country_code, country_name")
+        .gte("created_at", monthStart);
 
-    const todayStart = getStartOfDay(new Date());
-    const { count: todayCount } = await supabase
-      .from('page_views')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', todayStart);
+      const countryCounts = (countryData || []).reduce((acc, item) => {
+        const code = item.country_code || "XX";
+        acc[code] = {
+          count: (acc[code]?.count || 0) + 1,
+          name: item.country_name || "Unknown",
+        };
+        return acc;
+      }, {});
 
-    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    const { count: thisMonthCount } = await supabase
-      .from('page_views')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', thisMonthStart);
+      const totalVisitors = Object.values(countryCounts).reduce(
+        (sum, c) => sum + c.count,
+        0
+      );
 
-    const thisYearStart = new Date(now.getFullYear(), 0, 1).toISOString();
-    const { count: thisYearCount } = await supabase
-      .from('page_views')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', thisYearStart);
+      const byCountry = Object.entries(countryCounts)
+        .map(([code, data]) => ({
+          code,
+          country: data.name,
+          visitors: data.count,
+          percentage:
+            totalVisitors > 0
+              ? Math.round((data.count / totalVisitors) * 100)
+              : 0,
+          flag: getCountryFlag(code),
+        }))
+        .sort((a, b) => b.visitors - a.visitors)
+        .slice(0, 5);
 
-    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
-    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59).toISOString();
-    const { count: lastMonthCount } = await supabase
-      .from('page_views')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', lastMonthStart)
-      .lte('created_at', lastMonthEnd);
+      // By Source/Referrer
+      const { data: sourceData } = await supabase
+        .from("page_views")
+        .select("referrer")
+        .gte("created_at", monthStart);
 
-    const lastYearStart = new Date(now.getFullYear() - 1, 0, 1).toISOString();
-    const lastYearEnd = new Date(now.getFullYear() - 1, 11, 31, 23, 59, 59).toISOString();
-    const { count: lastYearCount } = await supabase
-      .from('page_views')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', lastYearStart)
-      .lte('created_at', lastYearEnd);
+      const sourceCounts = (sourceData || []).reduce((acc, item) => {
+        let source = "Direct";
+        if (item.referrer) {
+          try {
+            const url = new URL(item.referrer);
+            source = url.hostname.replace("www.", "");
+          } catch {
+            source = item.referrer;
+          }
+        }
+        acc[source] = (acc[source] || 0) + 1;
+        return acc;
+      }, {});
 
-    const { data: countryData } = await supabase
-      .from('page_views')
-      .select('country_code, country_name')
-      .gte('created_at', thisMonthStart);
+      const bySource = Object.entries(sourceCounts)
+        .map(([source, count]) => ({ source, visitors: count }))
+        .sort((a, b) => b.visitors - a.visitors)
+        .slice(0, 5);
 
-    const countryCounts = (countryData || []).reduce((acc, item) => {
-      const code = item.country_code || 'XX';
-      acc[code] = (acc[code] || 0) + 1;
-      return acc;
-    }, {});
-
-    const byCountry = Object.entries(countryCounts).map(([code, count]) => ({
-      code,
-      country: countryData.find(d => d.country_code === code)?.country_name || 'Unknown',
-      visitors: count,
-      flag: getFlagEmoji(code)
-    })).sort((a, b) => b.visitors - a.visitors);
-
-    setVisitorStats({
-      today: todayCount || 0,
-      thisMonth: thisMonthCount || 0,
-      thisYear: thisYearCount || 0,
-      lastMonth: lastMonthCount || 0,
-      lastYear: lastYearCount || 0,
-      byCountry
-    });
-  };
-
-  const getFlagEmoji = (countryCode) => {
-    const flags = {
-      // Asia Tenggara
-      'ID': '🇮🇩', 'SG': '🇸🇬', 'MY': '🇲🇾', 'TH': '🇹🇭',
-      'PH': '🇵🇭', 'VN': '🇻🇳', 'BN': '🇧🇳', 'KH': '🇰🇭',
-      'LA': '🇱🇦', 'MM': '🇲🇲', 'TL': '🇹🇱',
-      
-      // Asia Timur
-      'JP': '🇯🇵', 'CN': '🇨🇳', 'KR': '🇰🇷', 'TW': '🇹🇼',
-      'HK': '🇭🇰', 'MO': '🇲🇴', 'MN': '🇲🇳',
-      
-      // Asia Selatan
-      'IN': '🇮🇳', 'PK': '🇵🇰', 'BD': '🇧🇩', 'LK': '🇱🇰',
-      'NP': '🇳🇵', 'BT': '🇧🇹', 'MV': '🇲🇻', 'AF': '🇦🇫',
-      
-      // Timur Tengah
-      'SA': '🇸🇦', 'AE': '🇦🇪', 'TR': '🇹🇷', 'IR': '🇮🇷',
-      'IQ': '🇮🇶', 'IL': '🇮🇱', 'JO': '🇯🇴', 'LB': '🇱🇧',
-      'SY': '🇸🇾', 'YE': '🇾🇪', 'OM': '🇴🇲', 'KW': '🇰🇼',
-      'QA': '🇶🇦', 'BH': '🇧🇭',
-      
-      // Eropa Barat
-      'GB': '🇬🇧', 'FR': '🇫🇷', 'DE': '🇩🇪', 'IT': '🇮🇹',
-      'ES': '🇪🇸', 'NL': '🇳🇱', 'BE': '🇧🇪', 'CH': '🇨🇭',
-      'AT': '🇦🇹', 'PT': '🇵🇹', 'IE': '🇮🇪', 'LU': '🇱🇺',
-      
-      // Eropa Utara
-      'SE': '🇸🇪', 'NO': '🇳🇴', 'DK': '🇩🇰', 'FI': '🇫🇮',
-      'IS': '🇮🇸',
-      
-      // Eropa Timur
-      'RU': '🇷🇺', 'PL': '🇵🇱', 'UA': '🇺🇦', 'CZ': '🇨🇿',
-      'RO': '🇷🇴', 'HU': '🇭🇺', 'BG': '🇧🇬', 'SK': '🇸🇰',
-      'BY': '🇧🇾', 'RS': '🇷🇸', 'HR': '🇭🇷', 'BA': '🇧🇦',
-      'SI': '🇸🇮', 'LT': '🇱🇹', 'LV': '🇱🇻', 'EE': '🇪🇪',
-      
-      // Amerika
-      'US': '🇺🇸', 'CA': '🇨🇦', 'MX': '🇲🇽', 'BR': '🇧🇷',
-      'AR': '🇦🇷', 'CL': '🇨🇱', 'CO': '🇨🇴', 'PE': '🇵🇪',
-      'VE': '🇻🇪', 'EC': '🇪🇨', 'UY': '🇺🇾', 'PY': '🇵🇾',
-      'BO': '🇧🇴', 'CR': '🇨🇷', 'PA': '🇵🇦', 'GT': '🇬🇹',
-      'CU': '🇨🇺', 'DO': '🇩🇴', 'HN': '🇭🇳', 'SV': '🇸🇻',
-      'NI': '🇳🇮', 'JM': '🇯🇲',
-      
-      // Oseania
-      'AU': '🇦🇺', 'NZ': '🇳🇿', 'FJ': '🇫🇯', 'PG': '🇵🇬',
-      
-      // Afrika
-      'ZA': '🇿🇦', 'EG': '🇪🇬', 'NG': '🇳🇬', 'KE': '🇰🇪',
-      'MA': '🇲🇦', 'ET': '🇪🇹', 'GH': '🇬🇭', 'TZ': '🇹🇿',
-      'UG': '🇺🇬', 'DZ': '🇩🇿', 'SD': '🇸🇩', 'AO': '🇦🇴',
-      'TN': '🇹🇳', 'LY': '🇱🇾', 'SN': '🇸🇳', 'ZW': '🇿🇼'
-    };
-    return flags[countryCode] || '🌍';
-  };
-
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(price).replace('IDR', 'Rp ');
-  };
-
-  const getPeriodLabel = () => {
-    switch (orderPeriod) {
-      case 'thisMonth': return 'Bulan Ini';
-      case 'lastMonth': return 'Bulan Kemarin';
-      case 'lastYear': return 'Tahun Kemarin';
-      case 'all': return 'Keseluruhan';
-      default: return 'Bulan Ini';
+      setVisitorStats({ byCountry, bySource, totalVisitors });
+    } catch (error) {
+      console.error("Error fetching visitor stats:", error);
     }
   };
 
+  const getCountryFlag = (countryCode) => {
+    // Convert country code to flag emoji
+    if (!countryCode || countryCode === "XX")
+      return "/icons/country/default.svg";
+    return `/icons/country/${countryCode.toLowerCase()}.svg`;
+  };
+
+  const formatNumber = (num) => {
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + "K";
+    }
+    return num.toString();
+  };
+
+  // Calculate total activity this month
+  const totalActivityThisMonth =
+    contentStats.orders.thisMonth +
+    contentStats.portfolio.thisMonth +
+    contentStats.services.thisMonth +
+    contentStats.testimonials.thisMonth;
+
+  // ApexCharts options for bar chart - using CSS variable for primary color
+  const barChartOptions = {
+    chart: {
+      type: "bar",
+      height: 350,
+      toolbar: {
+        show: false,
+      },
+      fontFamily: "inherit",
+    },
+    colors: ["#fbb040"],
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: "55%",
+        borderRadius: 4,
+        borderRadiusApplication: "end",
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
+      show: true,
+      width: 2,
+      colors: ["transparent"],
+    },
+    xaxis: {
+      categories: orderStats.monthlyData.map((d) => d.month),
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+      labels: {
+        style: {
+          colors: "#64748b",
+          fontSize: "12px",
+        },
+      },
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: "#64748b",
+          fontSize: "12px",
+        },
+      },
+    },
+    fill: {
+      opacity: 1,
+    },
+    tooltip: {
+      y: {
+        formatter: (val) => `${val} orders`,
+      },
+    },
+    grid: {
+      borderColor: "#e2e8f0",
+      strokeDashArray: 4,
+    },
+  };
+
+  const barChartSeries = [
+    {
+      name: "Orders",
+      data: orderStats.monthlyData.map((d) => d.count),
+    },
+  ];
+
+  // Fullscreen loading
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="fixed inset-0 z-50 flex justify-center items-center bg-white">
         <LogoPathAnimation />
       </div>
     );
   }
 
   return (
-    <div className="p-3 sm:p-4 md:p-5 lg:p-6 mt-16 lg:mt-0">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 md:mb-6 lg:mb-8 gap-3">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
-          <Breadcrumb />
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-700">Dashboard Overview</h1>
-        </div>
-        <div className="text-xs sm:text-sm text-slate-700">
-          {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          <h1 className="text-2xl font-bold text-slate-800">
+            Dashboard Overview
+          </h1>
+          <p className="text-slate-500 text-sm mt-1">
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
         </div>
       </div>
 
-      {/* Welcome Message */}
-      <div className="bg-gradient-to-r from-primary to-secondary rounded-lg shadow-md p-4 sm:p-5 md:p-6 text-white mb-4 md:mb-6">
-        <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2">Selamat Datang di Admin Panel! 👋</h2>
-        <p className="text-sm lg:text-base text-white">
-          Kelola website Anda dengan mudah. Monitor pesanan, kelola konten, dan lihat statistik pengunjung dalam satu tempat.
-        </p>
-      </div>
-
-      {/* Order Statistics */}
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-5 md:p-6 mb-4 md:mb-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
-          <h2 className="text-base sm:text-lg lg:text-xl font-bold text-slate-700">Statistik Pesanan</h2>
-          <select
-            value={orderPeriod}
-            onChange={(e) => setOrderPeriod(e.target.value)}
-            className="w-full sm:w-auto px-3 lg:px-4 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-          >
-            <option value="thisMonth">Bulan Ini</option>
-            <option value="lastMonth">Bulan Kemarin</option>
-            <option value="lastYear">Tahun Kemarin</option>
-            <option value="all">Keseluruhan</option>
-          </select>
+      {/* Stats Cards Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Orders This Week */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-5">
+          <p className="text-slate-500 text-sm font-medium">Orders This Week</p>
+          <div className="flex items-end justify-between mt-3">
+            <p className="text-3xl font-bold text-slate-800">
+              {orderStats.thisWeek}
+            </p>
+            <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
+              vs last week
+            </span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-4 lg:mb-6">
-          <div className="bg-gradient-to-br from-primary to-secondary rounded-lg p-4 sm:p-5 md:p-6 text-white">
-            <div className="flex items-center justify-between">
+        {/* Orders This Month */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-5">
+          <p className="text-slate-500 text-sm font-medium">
+            Orders This Month
+          </p>
+          <div className="flex items-end justify-between mt-3">
+            <p className="text-3xl font-bold text-slate-800">
+              {orderStats.thisMonth}
+            </p>
+            <span
+              className={`text-xs font-medium px-2 py-1 rounded-full ${
+                orderStats.percentChange >= 0
+                  ? "text-emerald-600 bg-emerald-50"
+                  : "text-red-600 bg-red-50"
+              }`}
+            >
+              {orderStats.percentChange >= 0 ? "+" : ""}
+              {orderStats.percentChange}%
+            </span>
+          </div>
+        </div>
+
+        {/* Orders This Year */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-5">
+          <p className="text-slate-500 text-sm font-medium">Orders This Year</p>
+          <div className="flex items-end justify-between mt-3">
+            <p className="text-3xl font-bold text-slate-800">
+              {orderStats.thisYear}
+            </p>
+            <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+              YTD
+            </span>
+          </div>
+        </div>
+
+        {/* Total Orders */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-5">
+          <p className="text-slate-500 text-sm font-medium">Total Orders</p>
+          <div className="flex items-end justify-between mt-3">
+            <p className="text-3xl font-bold text-slate-800">
+              {orderStats.allTime}
+            </p>
+            <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">
+              All time
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column (2/3) */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Monthly Orders Chart */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-slate-800">
+                Monthly Orders
+              </h2>
+              <button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400">
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M10.2441 6C10.2441 5.0335 11.0276 4.25 11.9941 4.25H12.0041C12.9706 4.25 13.7541 5.0335 13.7541 6C13.7541 6.9665 12.9706 7.75 12.0041 7.75H11.9941C11.0276 7.75 10.2441 6.9665 10.2441 6ZM10.2441 18C10.2441 17.0335 11.0276 16.25 11.9941 16.25H12.0041C12.9706 16.25 13.7541 17.0335 13.7541 18C13.7541 18.9665 12.9706 19.75 12.0041 19.75H11.9941C11.0276 19.75 10.2441 18.9665 10.2441 18ZM11.9941 10.25C11.0276 10.25 10.2441 11.0335 10.2441 12C10.2441 12.9665 11.0276 13.75 11.9941 13.75H12.0041C12.9706 13.75 13.7541 12.9665 13.7541 12C13.7541 11.0335 12.9706 10.25 12.0041 10.25H11.9941Z"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* ApexCharts Bar Chart */}
+            <div className="-mx-2">
+              {chartLoaded && (
+                <Chart
+                  options={barChartOptions}
+                  series={barChartSeries}
+                  type="bar"
+                  height={300}
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Visitors Demographic with Map */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
+            <div className="flex justify-between">
               <div>
-                <p className="text-white text-xs sm:text-sm font-medium">Total Pesanan {getPeriodLabel()}</p>
-                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold mt-2">{orderStats.count}</p>
+                <h2 className="text-lg font-bold text-slate-800">
+                  Visitors Demographic
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Number of Visitor based on country
+                </p>
               </div>
-              <div className="bg-white bg-opacity-20 p-3 sm:p-4 rounded-full">
-                <svg className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 h-fit">
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M10.2441 6C10.2441 5.0335 11.0276 4.25 11.9941 4.25H12.0041C12.9706 4.25 13.7541 5.0335 13.7541 6C13.7541 6.9665 12.9706 7.75 12.0041 7.75H11.9941C11.0276 7.75 10.2441 6.9665 10.2441 6ZM10.2441 18C10.2441 17.0335 11.0276 16.25 11.9941 16.25H12.0041C12.9706 16.25 13.7541 17.0335 13.7541 18C13.7541 18.9665 12.9706 19.75 12.0041 19.75H11.9941C11.0276 19.75 10.2441 18.9665 10.2441 18ZM11.9941 10.25C11.0276 10.25 10.2441 11.0335 10.2441 12C10.2441 12.9665 11.0276 13.75 11.9941 13.75H12.0041C12.9706 13.75 13.7541 12.9665 13.7541 12C13.7541 11.0335 12.9706 10.25 12.0041 10.25H11.9941Z"
+                  />
                 </svg>
-              </div>
+              </button>
             </div>
-          </div>
 
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 sm:p-5 md:p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <p className="text-green-100 text-xs sm:text-sm font-medium">Total Pendapatan {getPeriodLabel()}</p>
-                <p className="text-xl sm:text-2xl lg:text-3xl font-bold mt-2 truncate">{formatPrice(orderStats.revenue)}</p>
-              </div>
-              <div className="bg-white bg-opacity-20 p-3 sm:p-4 rounded-full ml-2">
-                <svg className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
+            {/* Map Container */}
+            <div className="my-6 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 px-4 py-6 sm:px-6">
+              <div
+                ref={mapRef}
+                className="h-[212px] w-full"
+                style={{ backgroundColor: "transparent" }}
+              />
             </div>
-          </div>
-        </div>
 
-        {/* Recent Orders Table */}
-        <div>
-          <h3 className="font-semibold text-slate-700 mb-3 text-sm lg:text-base">Pesanan Terbaru</h3>
-          <div className="overflow-x-auto -mx-4 sm:mx-0">
-            <div className="inline-block min-w-full align-middle">
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-3 lg:px-4 py-2 lg:py-3 text-left text-xs font-medium text-slate-700 uppercase">Invoice</th>
-                    <th className="px-3 lg:px-4 py-2 lg:py-3 text-left text-xs font-medium text-slate-700 uppercase hidden sm:table-cell">Pelanggan</th>
-                    <th className="px-3 lg:px-4 py-2 lg:py-3 text-left text-xs font-medium text-slate-700 uppercase">Paket</th>
-                    <th className="px-3 lg:px-4 py-2 lg:py-3 text-left text-xs font-medium text-slate-700 uppercase">Nominal</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-slate-200">
-                  {orderStats.orders.slice(0, 5).map((order) => (
-                    <tr key={order.id} className="hover:bg-slate-50">
-                      <td className="px-3 lg:px-4 py-2 lg:py-3 text-xs lg:text-sm font-medium text-slate-700 whitespace-nowrap">{order.invoice_number}</td>
-                      <td className="px-3 lg:px-4 py-2 lg:py-3 text-xs lg:text-sm text-slate-700 hidden sm:table-cell">{order.customer_name}</td>
-                      <td className="px-3 lg:px-4 py-2 lg:py-3 text-xs lg:text-sm text-slate-700 max-w-[100px] truncate">{order.package_name}</td>
-                      <td className="px-3 lg:px-4 py-2 lg:py-3 text-xs lg:text-sm text-slate-700 whitespace-nowrap">{formatPrice(order.package_price)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <Link href="/dashboard/invoices" className="mt-4 inline-block text-primary hover:text-secondary font-medium text-xs lg:text-sm">
-            Lihat Semua Pesanan →
-          </Link>
-        </div>
-      </div>
-
-      {/* Content Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-4 md:mb-6">
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-5 md:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-slate-700 text-xs sm:text-sm font-medium">Total Portfolio</p>
-              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-700 mt-2">{contentStats.portfolio}</p>
-            </div>
-            <div className="bg-primary text-white p-2 sm:p-3 rounded-full">
-              <svg className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-          </div>
-          <Link href="/dashboard/portfolio" className="text-primary hover:text-secondary text-xs lg:text-sm font-medium">
-            Kelola Portfolio →
-          </Link>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-5 md:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-slate-700 text-xs sm:text-sm font-medium">Total Testimoni</p>
-              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-700 mt-2">{contentStats.testimonials}</p>
-            </div>
-            <div className="bg-primary text-white p-2 sm:p-3 rounded-full">
-              <svg className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-              </svg>
-            </div>
-          </div>
-          <Link href="/dashboard/testimoni" className="text-primary hover:text-secondary text-xs lg:text-sm font-medium">
-            Kelola Testimoni →
-          </Link>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-5 md:p-6 sm:col-span-2 lg:col-span-1">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-slate-700 text-xs sm:text-sm font-medium">Rekening Bank Aktif</p>
-              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-700 mt-2">{contentStats.bankAccounts}</p>
-            </div>
-            <div className="bg-primary text-white p-2 sm:p-3 rounded-full">
-              <svg className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-              </svg>
-            </div>
-          </div>
-          <Link href="/dashboard/bank-accounts" className="text-primary hover:text-secondary text-xs lg:text-sm font-medium">
-            Kelola Bank →
-          </Link>
-        </div>
-      </div>
-
-      {/* Visitor Statistics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-4 md:mb-6">
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-5 md:p-6">
-          <h2 className="text-base sm:text-lg lg:text-xl font-bold text-slate-700 mb-4">Statistik Pengunjung</h2>
-          <div className="space-y-2 lg:space-y-3">
-            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg">
-              <span className="text-slate-700 font-medium text-sm lg:text-base">Hari Ini</span>
-              <span className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-600">{visitorStats.today.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg">
-              <span className="text-slate-700 font-medium text-sm lg:text-base">Bulan Ini</span>
-              <span className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-600">{visitorStats.thisMonth.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg">
-              <span className="text-slate-700 font-medium text-sm lg:text-base">Tahun Ini</span>
-              <span className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-600">{visitorStats.thisYear.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg">
-              <span className="text-slate-700 font-medium text-sm lg:text-base">Bulan Kemarin</span>
-              <span className="text-base sm:text-lg lg:text-xl font-semibold text-slate-700">{visitorStats.lastMonth.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg">
-              <span className="text-slate-700 font-medium text-sm lg:text-base">Tahun Kemarin</span>
-              <span className="text-base sm:text-lg lg:text-xl font-semibold text-slate-700">{visitorStats.lastYear.toLocaleString()}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-5 md:p-6">
-          <h2 className="text-base sm:text-lg lg:text-xl font-bold text-slate-700 mb-4">Pengunjung per Negara</h2>
-          <div className="space-y-2">
-            {visitorStats.byCountry.map((country) => (
-              <div key={country.code} className="flex items-center justify-between p-2 lg:p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition">
-                <div className="flex items-center space-x-2 lg:space-x-3 min-w-0 flex-1">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-slate-800 text-sm lg:text-base truncate">{country.country}</p>
-                    <p className="text-xs text-slate-500">{country.code}</p>
+            {/* Country List */}
+            <div className="space-y-5">
+              {visitorStats.byCountry.length === 0 ? (
+                <p className="text-sm text-slate-500 text-center py-4">
+                  No visitor data available
+                </p>
+              ) : (
+                visitorStats.byCountry.map((country, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center">
+                        <span className="text-xl">
+                          {getFlagEmoji(country.code)}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-slate-800">
+                          {country.country}
+                        </p>
+                        <span className="block text-xs text-slate-500">
+                          {formatNumber(country.visitors)} Visitors
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 w-36">
+                      <div className="relative block h-2 w-full max-w-[100px] rounded-sm bg-slate-200">
+                        <div
+                          className="absolute left-0 top-0 h-full rounded-sm bg-primary"
+                          style={{ width: `${country.percentage}%` }}
+                        />
+                      </div>
+                      <p className="text-sm font-medium text-slate-800">
+                        {country.percentage}%
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="text-right ml-2">
-                  <p className="text-sm sm:text-base lg:text-lg font-bold text-slate-600">{country.visitors.toLocaleString()}</p>
-                  <p className="text-xs text-slate-500">visitors</p>
-                </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column (1/3) */}
+        <div className="space-y-6">
+          {/* Content Stats */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-slate-800">
+                Content Overview
+              </h2>
+              <button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400">
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M10.2441 6C10.2441 5.0335 11.0276 4.25 11.9941 4.25H12.0041C12.9706 4.25 13.7541 5.0335 13.7541 6C13.7541 6.9665 12.9706 7.75 12.0041 7.75H11.9941C11.0276 7.75 10.2441 6.9665 10.2441 6ZM10.2441 18C10.2441 17.0335 11.0276 16.25 11.9941 16.25H12.0041C12.9706 16.25 13.7541 17.0335 13.7541 18C13.7541 18.9665 12.9706 19.75 12.0041 19.75H11.9941C11.0276 19.75 10.2441 18.9665 10.2441 18ZM11.9941 10.25C11.0276 10.25 10.2441 11.0335 10.2441 12C10.2441 12.9665 11.0276 13.75 11.9941 13.75H12.0041C12.9706 13.75 13.7541 12.9665 13.7541 12C13.7541 11.0335 12.9706 10.25 12.0041 10.25H11.9941Z"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="flex justify-between text-xs text-slate-500 mb-3 px-1">
+              <span>Type</span>
+              <span>This Month / Total</span>
+            </div>
+
+            <div className="space-y-3">
+              <Link
+                href="/dashboard/invoices"
+                className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors"
+              >
+                <span className="text-slate-700 font-medium">Orders</span>
+                <span className="text-slate-500 font-medium">
+                  <span className="text-primary">
+                    {contentStats.orders.thisMonth}
+                  </span>{" "}
+                  / {contentStats.orders.total}
+                </span>
+              </Link>
+              <Link
+                href="/dashboard/portfolio"
+                className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors"
+              >
+                <span className="text-slate-700 font-medium">Portfolio</span>
+                <span className="text-slate-500 font-medium">
+                  <span className="text-primary">
+                    {contentStats.portfolio.thisMonth}
+                  </span>{" "}
+                  / {contentStats.portfolio.total}
+                </span>
+              </Link>
+              <Link
+                href="/dashboard/services"
+                className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors"
+              >
+                <span className="text-slate-700 font-medium">Services</span>
+                <span className="text-slate-500 font-medium">
+                  <span className="text-primary">
+                    {contentStats.services.thisMonth}
+                  </span>{" "}
+                  / {contentStats.services.total}
+                </span>
+              </Link>
+              <Link
+                href="/dashboard/testimoni"
+                className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors"
+              >
+                <span className="text-slate-700 font-medium">Testimonials</span>
+                <span className="text-slate-500 font-medium">
+                  <span className="text-primary">
+                    {contentStats.testimonials.thisMonth}
+                  </span>{" "}
+                  / {contentStats.testimonials.total}
+                </span>
+              </Link>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-between px-1">
+                <span className="text-sm text-slate-500">
+                  Total Activity This Month
+                </span>
+                <span className="text-lg font-bold text-slate-800">
+                  {totalActivityThisMonth}
+                </span>
               </div>
-            ))}
+            </div>
+          </div>
+
+          {/* Top Channels */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-slate-800">Top Channels</h2>
+              <button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400">
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M10.2441 6C10.2441 5.0335 11.0276 4.25 11.9941 4.25H12.0041C12.9706 4.25 13.7541 5.0335 13.7541 6C13.7541 6.9665 12.9706 7.75 12.0041 7.75H11.9941C11.0276 7.75 10.2441 6.9665 10.2441 6ZM10.2441 18C10.2441 17.0335 11.0276 16.25 11.9941 16.25H12.0041C12.9706 16.25 13.7541 17.0335 13.7541 18C13.7541 18.9665 12.9706 19.75 12.0041 19.75H11.9941C11.0276 19.75 10.2441 18.9665 10.2441 18ZM11.9941 10.25C11.0276 10.25 10.2441 11.0335 10.2441 12C10.2441 12.9665 11.0276 13.75 11.9941 13.75H12.0041C12.9706 13.75 13.7541 12.9665 13.7541 12C13.7541 11.0335 12.9706 10.25 12.0041 10.25H11.9941Z"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="flex justify-between text-xs text-slate-500 mb-3 px-1">
+              <span>Source</span>
+              <span>Visitors</span>
+            </div>
+
+            <div className="space-y-3">
+              {visitorStats.bySource.length === 0 ? (
+                <p className="text-sm text-slate-500 text-center py-4">
+                  No source data available
+                </p>
+              ) : (
+                visitorStats.bySource.map((source, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors"
+                  >
+                    <span className="text-slate-700 font-medium">
+                      {source.source}
+                    </span>
+                    <span className="text-primary font-medium">
+                      {formatNumber(source.visitors)}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <Link
+              href="/dashboard/analytics"
+              className="mt-4 flex items-center justify-center gap-2 w-full py-3 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+            >
+              Channels Report
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
+              </svg>
+            </Link>
           </div>
         </div>
       </div>
     </div>
   );
+}
+
+// Helper function for flag emoji
+function getFlagEmoji(countryCode) {
+  const flags = {
+    ID: "🇮🇩",
+    SG: "🇸🇬",
+    MY: "🇲🇾",
+    TH: "🇹🇭",
+    PH: "🇵🇭",
+    VN: "🇻🇳",
+    JP: "🇯🇵",
+    CN: "🇨🇳",
+    KR: "🇰🇷",
+    TW: "🇹🇼",
+    HK: "🇭🇰",
+    IN: "🇮🇳",
+    PK: "🇵🇰",
+    BD: "🇧🇩",
+    SA: "🇸🇦",
+    AE: "🇦🇪",
+    TR: "🇹🇷",
+    GB: "🇬🇧",
+    FR: "🇫🇷",
+    DE: "🇩🇪",
+    IT: "🇮🇹",
+    ES: "🇪🇸",
+    NL: "🇳🇱",
+    RU: "🇷🇺",
+    PL: "🇵🇱",
+    UA: "🇺🇦",
+    US: "🇺🇸",
+    CA: "🇨🇦",
+    MX: "🇲🇽",
+    BR: "🇧🇷",
+    AR: "🇦🇷",
+    AU: "🇦🇺",
+    NZ: "🇳🇿",
+    ZA: "🇿🇦",
+    EG: "🇪🇬",
+    NG: "🇳🇬",
+  };
+  return flags[countryCode] || "🌍";
 }

@@ -67,7 +67,7 @@ export async function generateMetadata() {
     },
     referrer: 'no-referrer-when-downgrade',
     keywords: settings.meta_keywords?.split(',') || [],
-    
+
     // --- Tambahkan Konfigurasi PWA di sini ---
     manifest: '/manifest.json', // Menunjuk ke file manifest Anda
     themeColor: '#0d9488', // Warna tema untuk browser UI
@@ -121,7 +121,7 @@ export default async function RootLayout({ children }) {
           }}
         />
       </head>
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${inter.variable} antialiased bg-slate-100`}>
         <SupabaseProvider>
           <PageViewTracker />
           {children}

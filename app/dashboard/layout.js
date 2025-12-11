@@ -1,7 +1,7 @@
 // app/dashboard/layout.js
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
-import DashboardNav from '@/components/dashboard-nav';
+import DashboardLayoutClient from '@/components/DashboardLayoutClient';
 
 export default async function DashboardLayout({ children }) {
   const supabase = createClient();
@@ -13,11 +13,8 @@ export default async function DashboardLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      <DashboardNav user={user} />
-      <main className="flex-1 sm:p-8 p-4">
-        {children}
-      </main>
-    </div>
+    <DashboardLayoutClient user={user}>
+      {children}
+    </DashboardLayoutClient>
   );
 }

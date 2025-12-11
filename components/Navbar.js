@@ -8,6 +8,24 @@ export default function Navbar() {
   const [navItems, setNavItems] = useState([]);
   const [logoUrl, setLogoUrl] = useState('');
 
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [heroBg, setHeroBg] = useState('');
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Dynamic threshold calculation
+      const heroElement = document.getElementById('hero-section');
+      const threshold = heroElement
+        ? heroElement.offsetHeight - 80
+        : window.innerHeight - 80;
+
+      setIsScrolled(window.scrollY > threshold);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   useEffect(() => {
     fetchNavData();
   }, []);
@@ -33,6 +51,17 @@ export default function Navbar() {
 
       if (settingsError) throw settingsError;
       setLogoUrl(settingsData?.value || '');
+
+      // Fetch Hero Background
+      const { data: heroData } = await supabase
+        .from('hero_content')
+        .select('background_image')
+        .single();
+
+      if (heroData?.background_image) {
+        setHeroBg(heroData.background_image);
+      }
+
     } catch (error) {
       console.error('Error fetching navbar data:', error);
     }
@@ -48,7 +77,13 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 transition-transform duration-300 ease-in-out bg-white text-white shadow-lg z-50">
+      <header
+        className={`fixed transition-all duration-500 ease-in-out z-50 top-0 ${isScrolled
+          ? 'inset-x-4 rounded-b-3xl shadow-lg bg-cover bg-top'
+          : 'inset-x-0 rounded-none bg-white shadow-none'
+          }`}
+        style={isScrolled && heroBg ? { backgroundImage: `url('${heroBg}')` } : {}}
+      >
         <div className="max-w-6xl mx-auto py-3 px-4 flex justify-between items-center">
           {/* Logo */}
           <div className="flex items-center space-x-2">
@@ -57,7 +92,8 @@ export default function Navbar() {
                 <img
                   src={logoUrl}
                   alt="NaiaGrafika"
-                  className="h-8"
+                  className={`h-8 transition-all duration-300 ${isScrolled ? 'brightness-0 invert opacity-90' : ''
+                    }`}
                 />
               )}
             </a>
@@ -68,9 +104,10 @@ export default function Navbar() {
             <ul className="flex space-x-8">
               {navItems.map((item) => (
                 <li key={item.id}>
-                  <a 
-                    href={item.href} 
-                    className="text-slate-800 hover:text-primary transition duration-300 font-medium"
+                  <a
+                    href={item.href}
+                    className={`transition duration-300 font-medium ${isScrolled ? 'text-white hover:text-orange-200' : 'text-slate-800 hover:text-primary'
+                      }`}
                   >
                     {item.label}
                   </a>
@@ -80,8 +117,9 @@ export default function Navbar() {
           </nav>
 
           {/* Mobile Menu Button */}
-          <button 
-            className="md:hidden text-2xl focus:outline-none text-slate-800" 
+          <button
+            className={`md:hidden text-2xl focus:outline-none transition-colors duration-300 ${isScrolled ? 'text-white' : 'text-slate-800'
+              }`}
             onClick={toggleMobileMenu}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,7 +138,7 @@ export default function Navbar() {
                 <h3 className="text-lg font-semibold text-gray-800">
                   NaiaGrafika
                 </h3>
-                <button 
+                <button
                   onClick={closeMobileMenu}
                   className="p-1 rounded-sm text-gray-600 hover:text-gray-800"
                 >
@@ -114,9 +152,9 @@ export default function Navbar() {
               <ul className="space-y-4">
                 {navItems.map((item) => (
                   <li key={item.id}>
-                    <a 
-                      href={item.href} 
-                      onClick={closeMobileMenu} 
+                    <a
+                      href={item.href}
+                      onClick={closeMobileMenu}
                       className="block py-2 text-gray-700 hover:text-orange-500 transition duration-300 font-medium"
                     >
                       {item.label}

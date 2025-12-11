@@ -49,11 +49,11 @@ const CTA = () => {
 
   return (
     <section
-      className="pt-32 pb-12 bg-white relative overflow-hidden bg-no-repeat bg-cover bg-top"
+      className="pt-32 pb-12 relative overflow-hidden bg-no-repeat bg-cover bg-top"
       style={{ backgroundImage: `url('${ctaData.cta_background_image}')` }}
     >
       <svg className="transform absolute top-0 fill-white h-[90px] w-full" preserveAspectRatio="none" viewBox="0 0 1000 37" xmlns="http://www.w3.org/2000/svg">
-        <g fill="#fff">
+        <g fill="#f1f5f9">
           <path d="M0 0h1000v1.48H0z"></path>
           <path d="M0 0h1000v29.896S550 37 500 37 0 29.896 0 29.896V0Z" opacity=".2"></path>
           <path d="M0 0h1000v22.792S600 37 500 37 0 22.792 0 22.792V0Z" opacity=".3"></path>
