@@ -50,13 +50,13 @@ const CTA = ({ data = {} }) => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
           <button
             onClick={handleWhatsAppClick}
-            className="inline-flex justify-center items-center px-8 py-5 text-xl font-bold text-slate-700 bg-white md:rounded-full hover:bg-gray-100 transition-colors duration-300 shadow-lg"
+            className="px-8 py-5 text-xl font-bold text-slate-700 bg-white md:rounded-full hover:bg-gray-100 transition-colors duration-300 shadow-lg"
           >
             <span>{ctaData.cta_button_text}</span>
           </button>
           <button
             onClick={handlePortfolioClick}
-            className="inline-flex justify-center items-center px-8 py-5 text-xl font-bold text-slate-700 bg-white md:rounded-full hover:bg-gray-100 transition-colors duration-300 shadow-lg"
+            className="px-8 py-5 text-xl font-bold text-slate-700 bg-white md:rounded-full hover:bg-gray-100 transition-colors duration-300 shadow-lg"
           >
             <span>{ctaData.cta_button_portfolio_text}</span>
           </button>

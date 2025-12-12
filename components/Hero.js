@@ -33,7 +33,7 @@ export default async function Hero() {
   return (
     <section
       id="hero-section"
-      className="mx-4 rounded-b-3xl bg-primary min-h-screen relative overflow-hidden bg-center bg-cover" style={{ backgroundImage: `url('${hero.background_image}')` }}
+      className="mx-4 rounded-b-3xl bg-primary md:min-h-screen relative overflow-hidden bg-center bg-cover" style={{ backgroundImage: `url('${hero.background_image}')` }}
     >
       <div className="pt-16 md:pt-32 max-w-7xl mx-auto flex flex-col-reverse md:flex-row items-center">
         {/* Left Content */}
@@ -42,7 +42,7 @@ export default async function Hero() {
             {hero.title}
           </h1>
 
-          <div className="mt-6 sm:mt-16 space-y-6">
+          <div className="hidden md:block mt-6 sm:mt-16 space-y-6">
             {features?.map((feature) => (
               <div
                 key={feature.id}
