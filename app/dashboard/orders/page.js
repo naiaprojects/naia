@@ -294,8 +294,63 @@ export default function OrdersPage() {
                                 </div>
                             </div>
 
-                            {/* Table */}
-                            <div className="overflow-x-auto">
+                            {/* Mobile Card View */}
+                            <div className="lg:hidden space-y-3">
+                                {paginatedServiceOrders.map(order => {
+                                    const isSelected = serviceSelected.includes(order.id);
+                                    const status = getStatusBadge(order.payment_status);
+                                    return (
+                                        <div
+                                            key={order.id}
+                                            className={`bg-white rounded-xl border shadow-sm overflow-hidden ${isSelected ? 'border-primary ring-2 ring-primary/10' : 'border-slate-200'}`}
+                                        >
+                                            <div className="p-4">
+                                                <div className="flex items-start justify-between gap-3 mb-3">
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                                                            <span className="font-mono text-xs text-primary">{order.invoice_number}</span>
+                                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${status.bg}`}>
+                                                                {status.label}
+                                                            </span>
+                                                        </div>
+                                                        <h3 className="font-bold text-slate-800 text-sm">{order.customer_name}</h3>
+                                                        <p className="text-xs text-slate-500 truncate">{order.customer_email}</p>
+                                                    </div>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isSelected}
+                                                        onChange={() => toggleServiceItem(order.id)}
+                                                        className="w-5 h-5 text-slate-900 rounded border-slate-300 focus:ring-slate-900 cursor-pointer flex-shrink-0"
+                                                    />
+                                                </div>
+                                                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                                                    <div>
+                                                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Package</p>
+                                                        <p className="text-xs text-slate-700 font-medium">{order.package_name}</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Amount</p>
+                                                        <p className="text-sm text-primary font-bold">{formatPrice(order.package_price)}</p>
+                                                    </div>
+                                                </div>
+                                                <p className="text-[10px] text-slate-400 mt-2">{formatDate(order.created_at)}</p>
+                                            </div>
+                                            <div className="flex border-t border-slate-100">
+                                                <button
+                                                    onClick={() => { setSelectedOrder({ ...order, type: 'service' }); setShowDetailModal(true); }}
+                                                    className="flex-1 py-2.5 text-xs font-medium text-primary hover:bg-slate-50 transition flex items-center justify-center gap-1"
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                                    View Detail
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Desktop Table View */}
+                            <div className="hidden lg:block overflow-x-auto">
                                 <table className="w-full text-left text-sm">
                                     <thead className="bg-slate-50 border-b border-slate-100">
                                         <tr>
@@ -368,8 +423,70 @@ export default function OrdersPage() {
                                 </div>
                             </div>
 
-                            {/* Table */}
-                            <div className="overflow-x-auto">
+                            {/* Mobile Card View */}
+                            <div className="lg:hidden space-y-3">
+                                {paginatedStoreOrders.map(order => {
+                                    const isSelected = storeSelected.includes(order.id);
+                                    const status = getStatusBadge(order.payment_status);
+                                    return (
+                                        <div
+                                            key={order.id}
+                                            className={`bg-white rounded-xl border shadow-sm overflow-hidden ${isSelected ? 'border-primary ring-2 ring-primary/10' : 'border-slate-200'}`}
+                                        >
+                                            <div className="p-4">
+                                                <div className="flex items-start justify-between gap-3 mb-3">
+                                                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                                                        {order.item?.thumbnail_url && (
+                                                            <div className="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0">
+                                                                <img src={order.item.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                                                            </div>
+                                                        )}
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                                                                <span className="font-mono text-xs text-primary">{order.invoice_number}</span>
+                                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${status.bg}`}>
+                                                                    {status.label}
+                                                                </span>
+                                                            </div>
+                                                            <h3 className="font-bold text-slate-800 text-sm truncate">{order.item?.name || 'Deleted Product'}</h3>
+                                                        </div>
+                                                    </div>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isSelected}
+                                                        onChange={() => toggleStoreItem(order.id)}
+                                                        className="w-5 h-5 text-slate-900 rounded border-slate-300 focus:ring-slate-900 cursor-pointer flex-shrink-0"
+                                                    />
+                                                </div>
+                                                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                                                    <div>
+                                                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Customer</p>
+                                                        <p className="text-xs text-slate-700 font-medium">{order.customer_name}</p>
+                                                        <p className="text-[10px] text-slate-500 truncate">{order.customer_email}</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Amount</p>
+                                                        <p className="text-sm text-primary font-bold">{formatPrice(order.amount)}</p>
+                                                    </div>
+                                                </div>
+                                                <p className="text-[10px] text-slate-400 mt-2">{formatDate(order.created_at)}</p>
+                                            </div>
+                                            <div className="flex border-t border-slate-100">
+                                                <button
+                                                    onClick={() => { setSelectedOrder({ ...order, type: 'store' }); setShowDetailModal(true); }}
+                                                    className="flex-1 py-2.5 text-xs font-medium text-primary hover:bg-slate-50 transition flex items-center justify-center gap-1"
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                                    View Detail
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Desktop Table View */}
+                            <div className="hidden lg:block overflow-x-auto">
                                 <table className="w-full text-left text-sm">
                                     <thead className="bg-slate-50 border-b border-slate-100">
                                         <tr>
@@ -469,7 +586,21 @@ export default function OrdersPage() {
                                 <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-500">Email</span><span className="font-medium">{selectedOrder.customer_email}</span></div>
                                 <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-500">Phone</span><span className="font-medium">{selectedOrder.customer_phone || '-'}</span></div>
                                 <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-500">{selectedOrder.type === 'service' ? 'Package' : 'Product'}</span><span className="font-medium">{selectedOrder.type === 'service' ? selectedOrder.package_name : selectedOrder.item?.name}</span></div>
-                                <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-500">Amount</span><span className="font-bold text-primary">{formatPrice(selectedOrder.type === 'service' ? selectedOrder.package_price : selectedOrder.amount)}</span></div>
+
+                                {selectedOrder.discount_code ? (
+                                    <>
+                                        <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-500">Original Price</span><span className="font-medium line-through">{formatPrice(selectedOrder.original_price || (selectedOrder.type === 'service' ? selectedOrder.package_price : selectedOrder.amount))}</span></div>
+                                        <div className="flex justify-between py-2 border-b border-slate-100">
+                                            <span className="text-slate-500 flex items-center gap-1">
+                                                <svg className="w-3.5 h-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+                                                Discount ({selectedOrder.discount_code})
+                                            </span>
+                                            <span className="font-bold text-green-600">-{formatPrice(selectedOrder.discount_amount)}</span>
+                                        </div>
+                                    </>
+                                ) : null}
+
+                                <div className="flex justify-between py-2 border-b border-slate-100"><span className="text-slate-500">Total Amount</span><span className="font-bold text-primary">{formatPrice(selectedOrder.type === 'service' ? selectedOrder.package_price : selectedOrder.amount)}</span></div>
                                 <div className="flex justify-between py-2"><span className="text-slate-500">Date</span><span className="font-medium text-sm">{formatDate(selectedOrder.created_at)}</span></div>
                             </div>
 

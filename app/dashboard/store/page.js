@@ -129,7 +129,7 @@ export default function AdminStorePage() {
     };
 
     const handleBulkDelete = async () => {
-        if (!confirm(`Hapus ${selectedItems.length} item yang dipilih?`)) return;
+        if (!confirm(`Delete ${selectedItems.length} selected items?`)) return;
 
         const table = activeTab === 'products' ? 'store_items' : activeTab === 'categories' ? 'store_categories' : 'store_designs';
 
@@ -163,7 +163,7 @@ export default function AdminStorePage() {
             setProductForm(prev => ({ ...prev, thumbnail_url: urlData.publicUrl }));
         } catch (error) {
             console.error('Upload error:', error);
-            alert('Gagal upload gambar: ' + error.message);
+            alert('Failed to upload image: ' + error.message);
         } finally {
             setUploading(false);
         }
@@ -239,7 +239,7 @@ export default function AdminStorePage() {
 
     // Delete handler
     const handleDelete = async (id) => {
-        if (!confirm('Hapus item ini?')) return;
+        if (!confirm('Delete this item?')) return;
 
         const table = activeTab === 'products' ? 'store_items' : activeTab === 'categories' ? 'store_categories' : 'store_designs';
 
@@ -276,14 +276,14 @@ export default function AdminStorePage() {
                 <div>
                     <Breadcrumb items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Store', href: '/dashboard/store' }]} />
                     <h1 className="text-3xl font-bold text-gray-800 tracking-tight mt-2">Store Management</h1>
-                    <p className="text-gray-500 mt-1">Kelola produk, kategori, dan design toko Anda</p>
+                    <p className="text-gray-500 mt-1">Manage your store products, categories, and designs</p>
                 </div>
                 <button
                     onClick={openCreateModal}
                     className="inline-flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-orange-500/20 active:scale-95"
                 >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-                    Tambah {activeTab === 'products' ? 'Produk' : activeTab === 'categories' ? 'Kategori' : 'Design'}
+                    Add {activeTab === 'products' ? 'Product' : activeTab === 'categories' ? 'Category' : 'Design'}
                 </button>
             </div>
 
@@ -336,8 +336,8 @@ export default function AdminStorePage() {
                     <div className="bg-gray-50 p-4 rounded-full mb-4">
                         <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900">Belum ada data</h3>
-                    <p className="text-gray-500">Mulai dengan menambahkan {activeTab === 'products' ? 'produk' : activeTab === 'categories' ? 'kategori' : 'design'} baru.</p>
+                    <h3 className="text-lg font-medium text-gray-900">No data available</h3>
+                    <p className="text-gray-500">Start by adding {activeTab === 'products' ? 'product' : activeTab === 'categories' ? 'category' : 'design'}.</p>
                 </div>
             ) : (
                 <>
@@ -457,14 +457,14 @@ export default function AdminStorePage() {
                 <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-gray-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-6 animate-fade-in-up border border-gray-800">
                     <div className="font-bold flex items-center gap-2">
                         <span className="bg-white text-gray-900 w-6 h-6 rounded-full flex items-center justify-center text-xs">{selectedItems.length}</span>
-                        <span>Dipilih</span>
+                        <span>Selected</span>
                     </div>
                     <div className="h-6 w-px bg-gray-700"></div>
                     <button onClick={handleBulkDelete} className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-bold transition flex items-center gap-2">
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        Hapus
+                        Delete
                     </button>
-                    <button onClick={() => setSelectedItems([])} className="text-gray-400 hover:text-white text-sm">Batal</button>
+                    <button onClick={() => setSelectedItems([])} className="text-gray-400 hover:text-white text-sm">Cancel</button>
                 </div>
             )}
 
@@ -505,7 +505,7 @@ export default function AdminStorePage() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama Produk *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Product Name *</label>
                                     <input
                                         required
                                         type="text"
@@ -527,7 +527,7 @@ export default function AdminStorePage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Deskripsi</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
                                 <textarea
                                     rows={3}
                                     className="w-full p-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm outline-none"
@@ -538,13 +538,13 @@ export default function AdminStorePage() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Kategori</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Category</label>
                                     <select
                                         className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm outline-none"
                                         value={productForm.category_id}
                                         onChange={e => setProductForm({ ...productForm, category_id: e.target.value })}
                                     >
-                                        <option value="">Pilih Kategori</option>
+                                        <option value="">Select Category</option>
                                         {categories.map(cat => (
                                             <option key={cat.id} value={cat.id}>{cat.name}</option>
                                         ))}
@@ -557,7 +557,7 @@ export default function AdminStorePage() {
                                         value={productForm.design_id}
                                         onChange={e => setProductForm({ ...productForm, design_id: e.target.value })}
                                     >
-                                        <option value="">Pilih Design</option>
+                                        <option value="">Select Design</option>
                                         {designs.map(des => (
                                             <option key={des.id} value={des.id}>{des.name}</option>
                                         ))}
@@ -577,7 +577,7 @@ export default function AdminStorePage() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">URL Download</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Download URL</label>
                                     <input
                                         type="url"
                                         className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm outline-none"
@@ -590,18 +590,18 @@ export default function AdminStorePage() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Tipe Harga</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Price Type</label>
                                     <select
                                         className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm outline-none"
                                         value={productForm.price_type}
                                         onChange={e => setProductForm({ ...productForm, price_type: e.target.value, price: e.target.value === 'freebies' ? 0 : productForm.price })}
                                     >
                                         <option value="premium">Premium</option>
-                                        <option value="freebies">Gratis (Freebies)</option>
+                                        <option value="freebies">Freebies</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Harga (IDR)</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Price (IDR)</label>
                                     <input
                                         type="number"
                                         className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm outline-none disabled:opacity-50"
@@ -636,7 +636,7 @@ export default function AdminStorePage() {
                     ) : (
                         <>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Name *</label>
                                 <input
                                     required
                                     type="text"
@@ -656,7 +656,7 @@ export default function AdminStorePage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Deskripsi</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
                                 <textarea
                                     rows={3}
                                     className="w-full p-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm outline-none"
@@ -671,14 +671,14 @@ export default function AdminStorePage() {
                                     checked={simpleForm.is_active}
                                     onChange={e => setSimpleForm({ ...simpleForm, is_active: e.target.checked })}
                                 />
-                                <label className="text-sm font-medium text-gray-700">Aktif</label>
+                                <label className="text-sm font-medium text-gray-700">Active</label>
                             </div>
                         </>
                     )}
 
                     <div className="flex gap-3 pt-4">
-                        <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-3 px-4 rounded-xl border border-gray-200 text-gray-600 font-medium hover:bg-gray-50 transition">Batal</button>
-                        <button type="submit" className="flex-1 py-3 px-4 rounded-xl bg-orange-600 text-white font-medium hover:bg-orange-700 shadow-lg shadow-orange-500/20 transition">Simpan</button>
+                        <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-3 px-4 rounded-xl border border-gray-200 text-gray-600 font-medium hover:bg-gray-50 transition">Cancel</button>
+                        <button type="submit" className="flex-1 py-3 px-4 rounded-xl bg-orange-600 text-white font-medium hover:bg-orange-700 shadow-lg shadow-orange-500/20 transition">Save</button>
                     </div>
                 </form>
             </Modal>

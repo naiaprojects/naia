@@ -75,7 +75,12 @@ export async function POST(request) {
             customer_phone: body.customer_phone || null,
             amount: body.amount,
             payment_status: 'pending',
-            notes: body.notes || null
+            notes: body.notes || null,
+            // Discount fields
+            discount_id: body.discount?.id || null,
+            discount_code: body.discount?.code || null,
+            discount_amount: body.discount?.discount_amount || 0,
+            original_price: body.discount ? body.discount.original_amount : body.amount
         };
 
         const { data, error } = await supabase
@@ -88,6 +93,11 @@ export async function POST(request) {
             .single();
 
         if (error) throw error;
+
+        // Increment discount usage if discount was applied
+        if (body.discount?.id) {
+            await supabase.rpc('increment_discount_usage', { discount_uuid: body.discount.id });
+        }
         return NextResponse.json(data);
     } catch (error) {
         console.error('Error creating purchase:', error);

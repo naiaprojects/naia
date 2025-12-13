@@ -17,7 +17,12 @@ export async function POST(request) {
             package_price: body.amount,
             payment_method: body.paymentMethod,
             payment_status: 'pending',
-            notes: JSON.stringify(body.briefingData)
+            notes: JSON.stringify(body.briefingData),
+            // Discount fields
+            discount_id: body.discount?.id || null,
+            discount_code: body.discount?.code || null,
+            discount_amount: body.discount?.discount_amount || 0,
+            original_price: body.discount ? body.discount.original_amount : body.amount
         };
 
         const { data, error } = await supabase
@@ -27,6 +32,11 @@ export async function POST(request) {
             .single();
 
         if (error) throw error;
+
+        // Increment discount usage if discount was applied
+        if (body.discount?.id) {
+            await supabase.rpc('increment_discount_usage', { discount_uuid: body.discount.id });
+        }
 
         return NextResponse.json({ success: true, data });
     } catch (error) {
