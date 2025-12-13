@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase-client';
 import Breadcrumb from '@/components/Breadcrumb';
 import LogoPathAnimation from '@/components/LogoPathAnimation';
 
+
+
 export default function NotificationsPage() {
     const supabase = createClient();
     const [notifications, setNotifications] = useState([]);

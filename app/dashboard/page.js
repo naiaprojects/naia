@@ -9,6 +9,8 @@ import LogoPathAnimation from "@/components/LogoPathAnimation";
 // Dynamic import for ApexCharts (client-side only)
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
+
+
 export default function DashboardPage() {
   const [orderStats, setOrderStats] = useState({
     thisWeek: 0,
@@ -393,7 +395,7 @@ export default function DashboardPage() {
       },
       fontFamily: "inherit",
     },
-    colors: ["#fbb040"],
+    colors: ["#14dff2"],
     plotOptions: {
       bar: {
         horizontal: false,

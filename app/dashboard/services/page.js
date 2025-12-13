@@ -27,6 +27,8 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-xl' }) => {
     );
 };
 
+
+
 export default function ServicesPage() {
     const supabase = createClient();
 

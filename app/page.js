@@ -49,6 +49,8 @@ async function getHomeData() {
   };
 }
 
+// Homepage uses the default title from root layout (site_title from settings)
+
 export default async function Home() {
   const { portfolio, services, testimoni, faq, settings } = await getHomeData();
 

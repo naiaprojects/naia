@@ -24,6 +24,8 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-xl' }) => {
     );
 };
 
+
+
 export default function AdminStorePage() {
     const supabase = createClient();
 

@@ -7,6 +7,8 @@ import Breadcrumb from '@/components/Breadcrumb';
 import LogoPathAnimation from '@/components/LogoPathAnimation';
 import Link from 'next/link';
 
+
+
 export default function OrdersPage() {
     const supabase = createClient();
 

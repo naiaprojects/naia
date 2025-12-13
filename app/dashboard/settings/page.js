@@ -1,4 +1,3 @@
-// app/dashboard/settings/page.js
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -7,13 +6,16 @@ import { useRouter } from 'next/navigation';
 import Breadcrumb from '@/components/Breadcrumb';
 import LogoPathAnimation from '@/components/LogoPathAnimation';
 import HeroLottie from '@/components/HeroLottie';
+import FileUploader from '@/components/FileUploader';
+
+
 
 export default function SettingsPage() {
   const supabase = createClient();
   const router = useRouter();
 
   // UI States
-  const [activeTab, setActiveTab] = useState('site');
+  const [activeTab, setActiveTab] = useState('branding');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
@@ -268,6 +270,7 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: 'site', label: 'Site Settings', icon: 'M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9' },
+    { id: 'branding', label: 'Branding & App', icon: 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01' },
     { id: 'cta', label: 'CTA & WhatsApp', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
     { id: 'meta', label: 'SEO & Meta', icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' },
     { id: 'hero', label: 'Hero Section', icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
@@ -313,6 +316,80 @@ export default function SettingsPage() {
         {/* Content Area */}
         <div className="flex-1 bg-white rounded-2xl shadow-sm border border-slate-100 p-6 min-h-[500px] animate-fade-in-up">
 
+          {/* Branding & App Settings */}
+          {activeTab === 'branding' && (
+            <div className="space-y-8">
+              {/* Brand Identity */}
+              <div className="space-y-6">
+                <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-4">Brand Identity</h2>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <FileUploader
+                    label="Site Logo"
+                    value={settings.logo_url || ''}
+                    onChange={(url) => handleChange('logo_url', url)}
+                    folder="branding"
+                    helperText="Recommended height: 40px"
+                  />
+                  <FileUploader
+                    label="Favicon"
+                    value={settings.favicon_url || ''}
+                    onChange={(url) => handleChange('favicon_url', url)}
+                    folder="branding"
+                    helperText="Icon for browser tab (32x32px or 16x16px)"
+                  />
+                </div>
+              </div>
+
+              {/* Theme Colors */}
+              <div className="space-y-6 pt-6 border-t border-slate-100">
+                <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-4">Theme Colors</h2>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <FormInput
+                      label="Primary Color"
+                      value={settings.primary_color || '#14dff2'}
+                      onChange={(v) => handleChange('primary_color', v)}
+                      type="color"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Used for main buttons, links, and highlights.</p>
+                  </div>
+                  <div>
+                    <FormInput
+                      label="Secondary Color"
+                      value={settings.secondary_color || '#3ebded'}
+                      onChange={(v) => handleChange('secondary_color', v)}
+                      type="color"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Used for gradients and accents.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* PWA Settings */}
+              <div className="space-y-6 pt-6 border-t border-slate-100">
+                <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-4">PWA & Mobile App</h2>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <FileUploader
+                    label="App Icon"
+                    value={settings.app_icon_url || ''}
+                    onChange={(url) => handleChange('app_icon_url', url)}
+                    folder="pwa"
+                    helperText="Used for Home Screen and Android Splash (192x192px min)"
+                  />
+                  <FileUploader
+                    label="Splash Image"
+                    value={settings.splash_icon_url || ''}
+                    onChange={(url) => handleChange('splash_icon_url', url)}
+                    folder="pwa"
+                    helperText="Optional specific splash screen image"
+                  />
+                </div>
+              </div>
+
+              <SaveButton onClick={handleSaveSettings} saving={saving} />
+            </div>
+          )}
+
           {/* Site Settings */}
           {activeTab === 'site' && (
             <div className="space-y-6">
@@ -320,8 +397,7 @@ export default function SettingsPage() {
               <div className="grid gap-5">
                 <FormInput label="Site Title" value={settings.site_title || ''} onChange={(v) => handleChange('site_title', v)} />
                 <FormTextarea label="Site Description" value={settings.site_description || ''} onChange={(v) => handleChange('site_description', v)} rows={3} />
-                <FormInput label="Logo URL" value={settings.logo_url || ''} onChange={(v) => handleChange('logo_url', v)} />
-                {settings.logo_url && <img src={settings.logo_url} alt="Logo" className="h-12 object-contain" />}
+                {/* Logo URL input removed as it is now handled in Branding tab */}
                 <FormInput label="Footer Text" value={settings.footer_text || ''} onChange={(v) => handleChange('footer_text', v)} />
                 <FormInput label="Site URL" value={settings.site_url || ''} onChange={(v) => handleChange('site_url', v)} />
                 <FormInput label="Company Phone" value={settings.company_phone || ''} onChange={(v) => handleChange('company_phone', v)} />
@@ -606,7 +682,7 @@ const Modal = ({ title, onClose, children }) => (
 const FormInput = ({ label, value, onChange, type = "text", placeholder, required = false }) => (
   <div>
     <label className="block text-sm font-bold text-slate-700 mb-2">{label}</label>
-    <input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900" placeholder={placeholder} required={required} />
+    <input type={type} value={value} onChange={(e) => onChange(e.target.value)} className={`w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 ${type === 'color' ? 'h-12 cursor-pointer p-1' : ''}`} placeholder={placeholder} required={required} />
   </div>
 );
 

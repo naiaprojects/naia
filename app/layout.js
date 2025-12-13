@@ -39,7 +39,11 @@ async function getSiteSettings() {
       site_url: 'https://www.naia.web.id',
       meta_keywords: 'jasa pembuatan web,blogspot custom',
       google_verification: '',
-      company_phone: ''
+      company_phone: '',
+      primary_color: '#14dff2',
+      secondary_color: '#3ebded',
+      favicon_url: '',
+      app_icon_url: ''
     };
   }
 }
@@ -48,7 +52,10 @@ export async function generateMetadata() {
   const settings = await getSiteSettings();
 
   return {
-    title: settings.site_title || "Jasa Custom Blogspot #1 Indonesia - NaiaGrafika.web.id",
+    title: {
+      default: settings.site_title || "Jasa Custom Blogspot #1 Indonesia - NaiaGrafika.web.id",
+      template: `%s - ${settings.site_title || "Jasa Custom Blogspot #1 Indonesia - NaiaGrafika.web.id"}`
+    },
     description: settings.site_description || "Jasa desain & pembuatan web Blogspot custom.",
     verification: {
       google: settings.google_verification || '',
@@ -69,11 +76,17 @@ export async function generateMetadata() {
     keywords: settings.meta_keywords?.split(',') || [],
 
     // --- Tambahkan Konfigurasi PWA di sini ---
-    manifest: '/manifest.json', // Menunjuk ke file manifest Anda
-    themeColor: '#0d9488', // Warna tema untuk browser UI
+    manifest: '/manifest.webmanifest', // NextJS 13/14 convention, though dynamic route might be /manifest.json depending on setup. Let's stick to default which next js handles via app/manifest.js automatically serving at /manifest.webmanifest or /manifest.json
+    themeColor: settings.primary_color || '#14dff2',
     icons: {
-      icon: '/icons/icon-192x192.png',
-      apple: '/icons/icon-192x192.png',
+      icon: settings.favicon_url || '/icons/icon-192x192.png',
+      apple: settings.app_icon_url || '/icons/icon-192x192.png',
+      other: [
+        {
+          rel: 'icon',
+          url: settings.favicon_url || '/icons/icon-192x192.png',
+        },
+      ],
     },
     // --- Akhir Konfigurasi PWA ---
 
@@ -122,6 +135,14 @@ export default async function RootLayout({ children }) {
         />
       </head>
       <body className={`${inter.variable} antialiased bg-slate-100`}>
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            :root {
+              --color-primary: ${settings.primary_color || '#14dff2'};
+              --color-secondary: ${settings.secondary_color || '#3ebded'};
+            }
+          `
+        }} />
         <SupabaseProvider>
           <PageViewTracker />
           {children}

@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import Breadcrumb from '@/components/Breadcrumb';
 import LogoPathAnimation from '@/components/LogoPathAnimation';
 
+
+
 export default function FAQManagementPage() {
     const supabase = createClient();
     const router = useRouter();
