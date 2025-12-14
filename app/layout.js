@@ -1,6 +1,8 @@
 // app/layout.js
 import { createClient } from '@/lib/supabase-server';
 import SupabaseProvider from '@/components/supabase-provider';
+import { LanguageProvider } from '@/lib/LanguageContext';
+import FloatingWhatsApp from '@/components/FloatingWhatsApp';
 import { Inter } from "next/font/google";
 import "./globals.css";
 import PageViewTracker from '@/components/PageViewTracker';
@@ -75,8 +77,8 @@ export async function generateMetadata() {
     referrer: 'no-referrer-when-downgrade',
     keywords: settings.meta_keywords?.split(',') || [],
 
-    // --- Tambahkan Konfigurasi PWA di sini ---
-    manifest: '/manifest.webmanifest', // NextJS 13/14 convention, though dynamic route might be /manifest.json depending on setup. Let's stick to default which next js handles via app/manifest.js automatically serving at /manifest.webmanifest or /manifest.json
+    // --- PWA Configuration ---
+    manifest: '/manifest.webmanifest',
     themeColor: settings.primary_color || '#14dff2',
     icons: {
       icon: settings.favicon_url || '/icons/icon-192x192.png',
@@ -88,7 +90,6 @@ export async function generateMetadata() {
         },
       ],
     },
-    // --- Akhir Konfigurasi PWA ---
 
     openGraph: {
       description: settings.site_description || '',
@@ -124,9 +125,8 @@ export default async function RootLayout({ children }) {
   };
 
   return (
-    <html lang="id">
+    <html lang="en">
       <head>
-        {/* Tidak perlu menambahkan link manual di sini, karena generateMetadata akan menanganinya */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -144,8 +144,11 @@ export default async function RootLayout({ children }) {
           `
         }} />
         <SupabaseProvider>
-          <PageViewTracker />
-          {children}
+          <LanguageProvider>
+            <PageViewTracker />
+            {children}
+            <FloatingWhatsApp />
+          </LanguageProvider>
         </SupabaseProvider>
       </body>
     </html>

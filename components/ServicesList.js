@@ -1,16 +1,23 @@
 'use client';
 
 import Link from 'next/link';
+import { useLanguage } from '@/lib/LanguageContext';
 
 const ServicesList = ({ data = [] }) => {
+    const { t, language } = useLanguage();
+
+    const getNoServicesText = () => {
+        return language === 'id' ? 'Belum ada layanan yang tersedia.' : 'No services available yet.';
+    };
+
     return (
         <section className="py-8 sm:py-32" id="price">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="py-6">
                     <div className="flex flex-col mb-10 text-center">
-                        <h2 className="font-manrope font-bold text-4xl text-slate-700 md:text-6xl leading-[50px]">Our Services</h2>
+                        <h2 className="font-manrope font-bold text-4xl text-slate-700 md:text-6xl leading-[50px]">{t('services.title')}</h2>
                         <p className="mt-4 text-base font-normal leading-7 text-slate-700 mb-9 max-w-2xl mx-auto">
-                            Find the best digital solutions for your needs, from unique designs, professional websites, to other creative needs.
+                            {t('services.subtitle')}
                         </p>
                     </div>
 
@@ -42,8 +49,8 @@ const ServicesList = ({ data = [] }) => {
                                 <div className="mt-auto">
                                     <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
                                         <div>
-                                            <p className="text-sm text-slate-500 mb-1">Starting from</p>
-                                            <p className="text-lg font-bold text-slate-800">{service.price_range || 'Call for Price'}</p>
+                                            <p className="text-sm text-slate-500 mb-1">{t('services.startingFrom')}</p>
+                                            <p className="text-lg font-bold text-slate-800">{service.price_range || (language === 'id' ? 'Hubungi Kami' : 'Call for Price')}</p>
                                         </div>
                                         <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-300">
                                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -58,7 +65,7 @@ const ServicesList = ({ data = [] }) => {
 
                     {data.length === 0 && (
                         <div className="text-center py-12 bg-slate-50 rounded-lg">
-                            <p className="text-slate-500">Belum ada layanan yang tersedia.</p>
+                            <p className="text-slate-500">{getNoServicesText()}</p>
                         </div>
                     )}
                 </div>

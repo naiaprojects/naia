@@ -2,11 +2,13 @@
 import { useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
+import { useLanguage } from '@/lib/LanguageContext';
 
 // Import Swiper styles
 import 'swiper/css';
 
 const Testimoni = ({ data = [] }) => {
+  const { t } = useLanguage();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -31,14 +33,14 @@ const Testimoni = ({ data = [] }) => {
               <div className="widget Text" data-version="1" id="Text24">
                 <div className="widget-content">
                   <h1 className="max-w-2xl mx-auto text-center font-manrope font-bold text-4xl text-slate-700 mb-5 md:text-6xl leading-[50px]">
-                    Testimonials
+                    {t('testimonials.title')}
                   </h1>
                 </div>
               </div>
               <div className="widget Text" data-version="1" id="Text25">
                 <div className="widget-content">
                   <p className="sm:max-w-2xl sm:mx-auto text-center text-base font-normal leading-7 text-slate-700 mb-9">
-                    Customer satisfaction is our priority, see what they say!
+                    {t('testimonials.subtitle')}
                   </p>
                 </div>
               </div>

@@ -43,6 +43,12 @@ export default function SettingsPage() {
   const [footerFormData, setFooterFormData] = useState({ category: 'naia', label: '', href: '', position: 0, is_active: true });
 
   const [socialLinks, setSocialLinks] = useState([]);
+
+  // Home Content Translations
+  const [homeContent, setHomeContent] = useState({});
+  const [homeContentLoading, setHomeContentLoading] = useState(false);
+  const [activeLangTab, setActiveLangTab] = useState('id'); // 'id' or 'en' for Home Content tab
+
   const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
   const [editSocialItem, setEditSocialItem] = useState(null);
   const [socialFormData, setSocialFormData] = useState({ name: '', href: '', icon_svg: '', position: 0, is_active: true });
@@ -70,6 +76,18 @@ export default function SettingsPage() {
         });
         setSettings(settingsObj);
       }
+
+      // Fetch Home Content Translations
+      setHomeContentLoading(true);
+      const { data: transData, error: transError } = await supabase.from('translations').select('*');
+      if (!transError && transData) {
+        const contentMap = {};
+        transData.forEach(item => {
+          contentMap[item.key] = { id: item.content_id || '', en: item.content_en || '' };
+        });
+        setHomeContent(contentMap);
+      }
+      setHomeContentLoading(false);
 
       // Hero
       if (heroRes.data) {
@@ -121,6 +139,32 @@ export default function SettingsPage() {
       showMessage('Error: ' + error.message, 'error');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleHomeContentSave = async (key, lang, value) => {
+    // Update local state first
+    const newContent = { ...homeContent };
+    if (!newContent[key]) newContent[key] = { id: '', en: '' };
+    newContent[key][lang] = value;
+    setHomeContent(newContent);
+
+    // Save to DB (Optimistic)
+    try {
+      const upsertData = {
+        key,
+        content_id: lang === 'id' ? value : (newContent[key].id || ''),
+        content_en: lang === 'en' ? value : (newContent[key].en || '')
+      };
+
+      const { error } = await supabase
+        .from('translations')
+        .upsert(upsertData, { onConflict: 'key' });
+
+      if (error) throw error;
+    } catch (err) {
+      console.error('Failed to save translation:', err);
+      showMessage('Failed to save change', 'error');
     }
   };
 
@@ -271,7 +315,9 @@ export default function SettingsPage() {
   const tabs = [
     { id: 'site', label: 'Site Settings', icon: 'M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9' },
     { id: 'branding', label: 'Branding & App', icon: 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01' },
+    { id: 'home_content', label: 'Home Content', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
     { id: 'cta', label: 'CTA & WhatsApp', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
+    { id: 'language', label: 'Language', icon: 'M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129' },
     { id: 'meta', label: 'SEO & Meta', icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' },
     { id: 'hero', label: 'Hero Section', icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
     { id: 'features', label: 'Hero Features', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
@@ -315,6 +361,98 @@ export default function SettingsPage() {
 
         {/* Content Area */}
         <div className="flex-1 bg-white rounded-2xl shadow-sm border border-slate-100 p-6 min-h-[500px] animate-fade-in-up">
+
+          {/* Home Content Tab */}
+          {activeTab === 'home_content' && (
+            <div className="space-y-8">
+              <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+                <h2 className="text-xl font-bold text-slate-800">Home Page Content</h2>
+                <div className="flex bg-slate-100 p-1 rounded-lg">
+                  <button
+                    onClick={() => setActiveLangTab('id')}
+                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${activeLangTab === 'id' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-900/50 hover:text-slate-900'
+                      }`}
+                  >
+                    🇮🇩 Bahasa
+                  </button>
+                  <button
+                    onClick={() => setActiveLangTab('en')}
+                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${activeLangTab === 'en' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-900/50 hover:text-slate-900'
+                      }`}
+                  >
+                    🇬🇧 English
+                  </button>
+                </div>
+              </div>
+
+              {homeContentLoading ? (
+                <div className="text-center py-12 text-slate-500">Loading editor...</div>
+              ) : (
+                <div className="grid gap-8">
+                  {/* Helper Component for Inputs */}
+                  {[
+                    {
+                      section: 'Hero Section', keys: [
+                        { key: 'hero.title', label: 'Hero Title', type: 'text' },
+                        { key: 'hero.subtitle', label: 'Hero Subtitle', type: 'textarea' },
+                        { key: 'hero.cta', label: 'Hero Button Text', type: 'text' }
+                      ]
+                    },
+                    {
+                      section: 'CTA Section', keys: [
+                        { key: 'cta.title', label: 'CTA Title', type: 'text' },
+                        { key: 'cta.subtitle', label: 'CTA Subtitle', type: 'textarea' },
+                        { key: 'cta.button', label: 'CTA Button', type: 'text' },
+                        { key: 'cta.whatsappMessage', label: 'WhatsApp Message', type: 'textarea' }
+                      ]
+                    },
+                    {
+                      section: 'Section Titles', keys: [
+                        { key: 'services.title', label: 'Services Title', type: 'text' },
+                        { key: 'services.subtitle', label: 'Services Subtitle', type: 'textarea' },
+                        { key: 'portfolio.title', label: 'Portfolio Title', type: 'text' },
+                        { key: 'portfolio.subtitle', label: 'Portfolio Subtitle', type: 'textarea' },
+                        { key: 'testimonials.title', label: 'Testimonials Title', type: 'text' },
+                        { key: 'testimonials.subtitle', label: 'Testimonials Subtitle', type: 'textarea' },
+                        { key: 'faq.title', label: 'FAQ Title', type: 'text' },
+                        { key: 'faq.subtitle', label: 'FAQ Subtitle', type: 'textarea' }
+                      ]
+                    }
+                  ].map((group) => (
+                    <div key={group.section} className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                      <h3 className="font-bold text-lg text-slate-800 mb-4">{group.section}</h3>
+                      <div className="grid gap-4">
+                        {group.keys.map((field) => (
+                          <div key={field.key}>
+                            <label className="block text-xs font-bold uppercase text-slate-400 mb-1">
+                              {field.label} ({activeLangTab.toUpperCase()})
+                            </label>
+                            {field.type === 'textarea' ? (
+                              <textarea
+                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                rows={2}
+                                value={homeContent[field.key]?.[activeLangTab] || ''}
+                                onChange={(e) => handleHomeContentSave(field.key, activeLangTab, e.target.value)}
+                                placeholder={`Enter ${field.label}...`}
+                              />
+                            ) : (
+                              <input
+                                type="text"
+                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                value={homeContent[field.key]?.[activeLangTab] || ''}
+                                onChange={(e) => handleHomeContentSave(field.key, activeLangTab, e.target.value)}
+                                placeholder={`Enter ${field.label}...`}
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Branding & App Settings */}
           {activeTab === 'branding' && (
@@ -426,7 +564,87 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* Meta & SEO */}
+          {/* Language Settings */}
+          {activeTab === 'language' && (
+            <div className="space-y-6">
+              <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-4">Language Settings</h2>
+              <div className="grid gap-6">
+                {/* Default Language */}
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Default Language</label>
+                  <select
+                    value={settings.default_language || 'en'}
+                    onChange={(e) => handleChange('default_language', e.target.value)}
+                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900"
+                  >
+                    <option value="en">🇬🇧 English</option>
+                    <option value="id">🇮🇩 Bahasa Indonesia</option>
+                  </select>
+                  <p className="text-xs text-slate-500 mt-1">This is used as fallback when IP detection fails.</p>
+                </div>
+
+                {/* Auto Detect by IP */}
+                <div className="p-4 border border-slate-200 rounded-xl bg-slate-50">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-bold text-slate-800">Auto-detect by IP</h3>
+                      <p className="text-sm text-slate-500">Automatically set language based on visitor's country</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={settings.language_auto_detect !== 'false'}
+                      onChange={(e) => handleChange('language_auto_detect', e.target.checked ? 'true' : 'false')}
+                      className="w-5 h-5 text-slate-900 rounded"
+                    />
+                  </div>
+                </div>
+
+                {/* Available Languages */}
+                <div>
+                  <h3 className="font-bold text-slate-800 mb-3">Available Languages</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-4 border border-slate-200 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">🇬🇧</span>
+                        <div>
+                          <p className="font-bold text-slate-800">English</p>
+                          <p className="text-xs text-slate-500">Primary language</p>
+                        </div>
+                      </div>
+                      <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-full">Active</span>
+                    </div>
+                    <div className="flex items-center justify-between p-4 border border-slate-200 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">🇮🇩</span>
+                        <div>
+                          <p className="font-bold text-slate-800">Bahasa Indonesia</p>
+                          <p className="text-xs text-slate-500">Indonesian language</p>
+                        </div>
+                      </div>
+                      <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-full">Active</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Info */}
+                <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                  <div className="flex gap-3">
+                    <svg className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <p className="text-sm text-blue-800 font-medium">How it works</p>
+                      <p className="text-sm text-blue-600 mt-1">
+                        The system automatically detects visitor's location by IP. Indonesian visitors see Bahasa Indonesia by default,
+                        others see English. Users can change language anytime using the switcher in navigation.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <SaveButton onClick={handleSaveSettings} saving={saving} />
+            </div>
+          )}
           {activeTab === 'meta' && (
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-4">SEO & Meta Settings</h2>

@@ -127,3 +127,15 @@ INSERT INTO store_designs (name, slug, description) VALUES
     ('Minimalist', 'minimalist', 'Design bersih dan sederhana'),
     ('Modern', 'modern', 'Design kontemporer dengan animasi'),
     ('Creative', 'creative', 'Design unik dan artistik');
+
+-- =====================================================
+-- BILINGUAL PAGES UPDATE (14 Des 2025)
+-- Jalankan script ini untuk enable fitur bilingual
+-- =====================================================
+
+ALTER TABLE pages 
+ADD COLUMN IF NOT EXISTS title_en TEXT,
+ADD COLUMN IF NOT EXISTS content_en TEXT;
+
+-- Update RLS policy jika perlu (biasanya sudah tercover oleh existing policy)
+-- Tapi pastikan admin bisa update kolom baru ini.

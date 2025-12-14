@@ -1,8 +1,10 @@
 // components/Portfolio.js
 'use client';
 import { useState } from 'react';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function Portfolio({ data = [] }) {
+  const { t, language } = useLanguage();
   const [showModal, setShowModal] = useState(false);
   const [modalData, setModalData] = useState({ image: '', title: '', link: '' });
   const [showAll, setShowAll] = useState(false);
@@ -19,15 +21,19 @@ export default function Portfolio({ data = [] }) {
     setShowModal(false);
   };
 
+  const visitWebsiteText = language === 'id' ? 'Kunjungi Website' : 'Visit Website';
+  const showLessText = language === 'id' ? 'Tampilkan Lebih Sedikit' : 'Show Less';
+  const showAllText = language === 'id' ? 'Lihat Semua Portofolio' : 'View All Portfolio';
+
   return (
     <section className="py-8 sm:py-32" id="porto">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="pb-6 sm:pb-16">
           <h1 className="max-w-2xl mx-auto text-center font-bold text-4xl text-slate-700 mb-5 md:text-6xl leading-[50px]">
-            Our Portofolio
+            {t('portfolio.title')}
           </h1>
           <p className="sm:max-w-3xl sm:mx-auto text-center text-base font-normal leading-7 text-slate-700 mb-9">
-            Take a look at our portfolio of websites that combine beautiful design with powerful functionality.
+            {t('portfolio.subtitle')}
           </p>
         </div>
 
@@ -66,7 +72,7 @@ export default function Portfolio({ data = [] }) {
                     rel="noopener noreferrer"
                     className="bg-primary hover:bg-orange-600 text-white px-8 py-3 rounded-full font-medium transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg z-10"
                   >
-                    Visit Website
+                    {visitWebsiteText}
                   </a>
                 </div>
               </div>
@@ -81,7 +87,7 @@ export default function Portfolio({ data = [] }) {
                 onClick={() => setShowAll(!showAll)}
                 className="inline-block rounded-full px-6 py-3 text-md text-white transition bg-gradient-to-r from-primary to-orange-600 hover:from-orange-700 hover:to-red-700"
               >
-                {showAll ? 'Tampilkan Lebih Sedikit' : 'Semua Portofolio'}
+                {showAll ? showLessText : showAllText}
               </button>
             </div>
           </div>

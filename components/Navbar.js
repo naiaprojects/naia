@@ -2,6 +2,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -100,7 +101,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Menu */}
-          <nav className="hidden md:block">
+          <nav className="hidden md:flex items-center gap-6">
             <ul className="flex space-x-8">
               {navItems.map((item) => (
                 <li key={item.id}>
@@ -114,6 +115,8 @@ export default function Navbar() {
                 </li>
               ))}
             </ul>
+            {/* Language Switcher - Next to Store */}
+            <LanguageSwitcher isScrolled={isScrolled} />
           </nav>
 
           {/* Mobile Menu Button */}
@@ -162,6 +165,11 @@ export default function Navbar() {
                   </li>
                 ))}
               </ul>
+              {/* Language Switcher for Mobile */}
+              <div className="mt-6 pt-4 border-t border-slate-200">
+                <p className="text-xs text-slate-500 mb-2 font-medium">Language</p>
+                <LanguageSwitcher />
+              </div>
             </nav>
           </div>
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={closeMobileMenu}></div>

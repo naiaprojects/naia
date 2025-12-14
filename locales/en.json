@@ -1,0 +1,93 @@
+{
+    "common": {
+        "home": "Home",
+        "portfolio": "Portfolio",
+        "services": "Services",
+        "store": "Store",
+        "contact": "Contact",
+        "login": "Login",
+        "logout": "Logout",
+        "search": "Search",
+        "loading": "Loading...",
+        "more": "More",
+        "viewAll": "View All",
+        "learnMore": "Learn More",
+        "getStarted": "Get Started",
+        "close": "Close",
+        "submit": "Submit",
+        "cancel": "Cancel",
+        "save": "Save",
+        "delete": "Delete",
+        "edit": "Edit",
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous"
+    },
+    "hero": {
+        "title": "Elevated Web Experiences for Modern Businesses",
+        "subtitle": "Professional website solutions tailored to your needs",
+        "cta": "Get Started Now"
+    },
+    "cta": {
+        "title": "Time to Have a Classy Website",
+        "subtitle": "Even with Blogspot, your website can look professional, lightweight, and SEO-friendly.",
+        "button": "Contact Us Now!",
+        "portfolioButton": "View Portfolio",
+        "whatsappMessage": "Hello! I am interested in your website services. Can you help?"
+    },
+    "services": {
+        "title": "Our Services",
+        "subtitle": "Professional web solutions for your business",
+        "viewDetails": "View Details",
+        "orderNow": "Order Now",
+        "startingFrom": "Starting from"
+    },
+    "portfolio": {
+        "title": "Our Portfolio",
+        "subtitle": "Explore our latest works and projects",
+        "viewProject": "View Project"
+    },
+    "testimonials": {
+        "title": "What Our Clients Say",
+        "subtitle": "Trusted by many satisfied customers"
+    },
+    "faq": {
+        "title": "Frequently Asked Questions",
+        "subtitle": "Find answers to common questions"
+    },
+    "footer": {
+        "rights": "All Rights Reserved",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service"
+    },
+    "whatsapp": {
+        "needHelp": "Need help?",
+        "contactUs": "Contact us!",
+        "question": "Have a question?",
+        "chatVia": "Chat with us via WhatsApp",
+        "responseTime": "We will respond as quickly as possible."
+    },
+    "order": {
+        "title": "Order Form",
+        "name": "Full Name",
+        "email": "Email Address",
+        "phone": "Phone Number",
+        "message": "Message",
+        "selectPackage": "Select Package",
+        "orderNow": "Order Now",
+        "orderSuccess": "Order submitted successfully!",
+        "orderFailed": "Failed to submit order. Please try again."
+    },
+    "invoice": {
+        "title": "Invoice",
+        "invoiceNumber": "Invoice Number",
+        "date": "Date",
+        "dueDate": "Due Date",
+        "status": "Status",
+        "total": "Total",
+        "payNow": "Pay Now",
+        "pending": "Pending",
+        "paid": "Paid",
+        "cancelled": "Cancelled"
+    }
+}

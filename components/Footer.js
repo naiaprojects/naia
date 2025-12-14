@@ -4,8 +4,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
+import { useLanguage } from '@/lib/LanguageContext';
 
 const Footer = () => {
+  const { t, language } = useLanguage();
   const currentYear = new Date().getFullYear();
   const [footerData, setFooterData] = useState({
     links: {},
@@ -70,9 +72,9 @@ const Footer = () => {
 
   const categoryTitles = {
     naia: 'Naia',
-    products: 'Products',
-    resources: 'Resources',
-    support: 'Support'
+    products: language === 'id' ? 'Produk' : 'Products',
+    resources: language === 'id' ? 'Sumber Daya' : 'Resources',
+    support: language === 'id' ? 'Dukungan' : 'Support'
   };
 
   return (
@@ -88,8 +90,8 @@ const Footer = () => {
               <ul className="transition-all duration-500">
                 {links.map((link) => (
                   <li key={link.id} className="mb-6">
-                    <Link 
-                      href={link.href} 
+                    <Link
+                      href={link.href}
                       className="text-gray-400 hover:text-white transition-colors duration-300"
                     >
                       {link.label}
@@ -106,15 +108,15 @@ const Footer = () => {
           <div className="flex items-center justify-center flex-col lg:space-y-0 space-y-8 lg:justify-between lg:flex-row">
             {/* Logo */}
             <div className="transition duration-300">
-              <Link 
-                className="flex items-center space-x-3 rtl:space-x-reverse" 
+              <Link
+                className="flex items-center space-x-3 rtl:space-x-reverse"
                 href={footerData.settings.site_url || "https://www.naia.web.id/"}
                 title={footerData.settings.footer_text}
               >
                 {footerData.settings.logo_url && (
-                  <img 
+                  <img
                     alt={footerData.settings.footer_text}
-                    className="h-8 brightness-0 invert opacity-90" 
+                    className="h-8 brightness-0 invert opacity-90"
                     src={footerData.settings.logo_url}
                     title={footerData.settings.footer_text}
                   />
@@ -124,12 +126,12 @@ const Footer = () => {
 
             {/* Copyright */}
             <span className="text-gray-400 block">
-              <Link 
-                href={footerData.settings.site_url || "https://www.naia.web.id/"} 
+              <Link
+                href={footerData.settings.site_url || "https://www.naia.web.id/"}
                 className="hover:text-white transition-colors duration-300"
               >
                 {footerData.settings.footer_text || 'NaiaGrafika'}
-              </Link> © {currentYear}, All rights reserved.
+              </Link> © {currentYear}, {t('footer.rights')}.
             </span>
 
             {/* Social Links */}

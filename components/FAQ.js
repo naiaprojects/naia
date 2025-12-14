@@ -2,8 +2,10 @@
 "use client";
 
 import { useState } from 'react';
+import { useLanguage } from '@/lib/LanguageContext';
 
 const FAQ = ({ data = [] }) => {
+  const { t } = useLanguage();
   const [activeIndex, setActiveIndex] = useState(null);
 
   const toggleAccordion = (index) => {
@@ -15,10 +17,10 @@ const FAQ = ({ data = [] }) => {
       <div className="container flex flex-col justify-center p-4 mx-auto md:p-8">
         <div className="faqSection">
           <h1 className="max-w-2xl mx-auto text-center font-manrope font-bold text-4xl text-primarys mb-5 md:text-6xl leading-[50px]">
-            Frequently Asked Questions
+            {t('faq.title')}
           </h1>
           <p className="sm:max-w-2xl sm:mx-auto text-center text-base font-normal leading-7 text-gray-500 mb-9">
-            Have a question? Check here first! The answer might already be here!
+            {t('faq.subtitle')}
           </p>
         </div>
         <div className="sm:mt-12 flex flex-col divide-y px-6 divide-slate-100 font-bold">

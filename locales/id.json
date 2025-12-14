@@ -1,0 +1,93 @@
+{
+    "common": {
+        "home": "Beranda",
+        "portfolio": "Portofolio",
+        "services": "Layanan",
+        "store": "Toko",
+        "contact": "Kontak",
+        "login": "Masuk",
+        "logout": "Keluar",
+        "search": "Cari",
+        "loading": "Memuat...",
+        "more": "Selengkapnya",
+        "viewAll": "Lihat Semua",
+        "learnMore": "Pelajari Lebih Lanjut",
+        "getStarted": "Mulai Sekarang",
+        "close": "Tutup",
+        "submit": "Kirim",
+        "cancel": "Batal",
+        "save": "Simpan",
+        "delete": "Hapus",
+        "edit": "Edit",
+        "back": "Kembali",
+        "next": "Selanjutnya",
+        "previous": "Sebelumnya"
+    },
+    "hero": {
+        "title": "Pengalaman Web Berkualitas untuk Bisnis Modern",
+        "subtitle": "Solusi website profesional yang disesuaikan dengan kebutuhan Anda",
+        "cta": "Mulai Sekarang"
+    },
+    "cta": {
+        "title": "Saatnya Memiliki Website Berkelas",
+        "subtitle": "Bahkan dengan Blogspot, website Anda bisa terlihat profesional, ringan, dan SEO-friendly.",
+        "button": "Hubungi Kami Sekarang!",
+        "portfolioButton": "Lihat Portofolio",
+        "whatsappMessage": "Halo! Saya tertarik dengan layanan website Anda. Bisa bantu?"
+    },
+    "services": {
+        "title": "Layanan Kami",
+        "subtitle": "Solusi web profesional untuk bisnis Anda",
+        "viewDetails": "Lihat Detail",
+        "orderNow": "Pesan Sekarang",
+        "startingFrom": "Mulai dari"
+    },
+    "portfolio": {
+        "title": "Portofolio Kami",
+        "subtitle": "Jelajahi karya dan proyek terbaru kami",
+        "viewProject": "Lihat Proyek"
+    },
+    "testimonials": {
+        "title": "Apa Kata Klien Kami",
+        "subtitle": "Dipercaya oleh banyak pelanggan puas"
+    },
+    "faq": {
+        "title": "Pertanyaan yang Sering Diajukan",
+        "subtitle": "Temukan jawaban untuk pertanyaan umum"
+    },
+    "footer": {
+        "rights": "Hak Cipta Dilindungi",
+        "privacy": "Kebijakan Privasi",
+        "terms": "Syarat & Ketentuan"
+    },
+    "whatsapp": {
+        "needHelp": "Butuh bantuan?",
+        "contactUs": "Hubungi kami!",
+        "question": "Ada pertanyaan?",
+        "chatVia": "Chat dengan kami via WhatsApp",
+        "responseTime": "Kami akan merespons secepat mungkin."
+    },
+    "order": {
+        "title": "Formulir Pemesanan",
+        "name": "Nama Lengkap",
+        "email": "Alamat Email",
+        "phone": "Nomor Telepon",
+        "message": "Pesan",
+        "selectPackage": "Pilih Paket",
+        "orderNow": "Pesan Sekarang",
+        "orderSuccess": "Pesanan berhasil dikirim!",
+        "orderFailed": "Gagal mengirim pesanan. Silakan coba lagi."
+    },
+    "invoice": {
+        "title": "Invoice",
+        "invoiceNumber": "Nomor Invoice",
+        "date": "Tanggal",
+        "dueDate": "Jatuh Tempo",
+        "status": "Status",
+        "total": "Total",
+        "payNow": "Bayar Sekarang",
+        "pending": "Menunggu",
+        "paid": "Lunas",
+        "cancelled": "Dibatalkan"
+    }
+}

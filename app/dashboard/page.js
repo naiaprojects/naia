@@ -18,7 +18,8 @@ export default function DashboardPage() {
     thisYear: 0,
     allTime: 0,
     percentChange: 0,
-    monthlyData: [],
+    monthlyData: [], // orders data with {month, count, revenue}
+    storeMonthlyData: [], // store_purchases data with {month, count, revenue}
   });
   const [contentStats, setContentStats] = useState({
     orders: { total: 0, thisMonth: 0 },
@@ -150,8 +151,10 @@ export default function DashboardPage() {
         .from("orders")
         .select("*", { count: "exact", head: true });
 
-      // Monthly data for chart (last 12 months)
+      // Monthly data for chart (last 12 months) - Orders with real revenue
       const monthlyData = [];
+      const storeMonthlyData = [];
+
       for (let i = 11; i >= 0; i--) {
         const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const monthEnd = new Date(
@@ -163,15 +166,36 @@ export default function DashboardPage() {
           59
         );
 
-        const { count } = await supabase
+        // Fetch orders with price
+        const { data: ordersData } = await supabase
           .from("orders")
-          .select("*", { count: "exact", head: true })
+          .select("package_price")
           .gte("created_at", monthDate.toISOString())
           .lte("created_at", monthEnd.toISOString());
 
+        const ordersCount = ordersData?.length || 0;
+        const ordersRevenue = ordersData?.reduce((sum, o) => sum + (parseFloat(o.package_price) || 0), 0) || 0;
+
+        // Fetch store purchases with price
+        const { data: storeData } = await supabase
+          .from("store_purchases")
+          .select("total_price")
+          .gte("created_at", monthDate.toISOString())
+          .lte("created_at", monthEnd.toISOString());
+
+        const storeCount = storeData?.length || 0;
+        const storeRevenue = storeData?.reduce((sum, s) => sum + (parseFloat(s.total_price) || 0), 0) || 0;
+
         monthlyData.push({
           month: monthDate.toLocaleDateString("en-US", { month: "short" }),
-          count: count || 0,
+          count: ordersCount,
+          revenue: ordersRevenue,
+        });
+
+        storeMonthlyData.push({
+          month: monthDate.toLocaleDateString("en-US", { month: "short" }),
+          count: storeCount,
+          revenue: storeRevenue,
         });
       }
 
@@ -191,6 +215,7 @@ export default function DashboardPage() {
         lastMonth: lastMonthCount || 0,
         percentChange,
         monthlyData,
+        storeMonthlyData,
       });
     } catch (error) {
       console.error("Error fetching order stats:", error);
@@ -334,17 +359,37 @@ export default function DashboardPage() {
   const fetchPendingOrders = async () => {
     const supabase = createClient();
     try {
-      const { data, error } = await supabase
+      // Fetch pending orders
+      const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
-        .select("*")
+        .select("id, customer_name, invoice_number, package_price, created_at, payment_status")
         .eq("payment_status", "pending")
         .order("created_at", { ascending: false })
         .limit(5);
 
-      if (error) throw error;
-      setPendingOrders(data || []);
+      if (ordersError) throw ordersError;
+
+      // Fetch pending store purchases
+      const { data: storeData, error: storeError } = await supabase
+        .from("store_purchases")
+        .select("id, customer_name, invoice_number, total_price, created_at, status")
+        .eq("status", "pending")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (storeError) throw storeError;
+
+      // Combine and sort by created_at, add type indicator
+      const combinedPending = [
+        ...(ordersData || []).map(item => ({ ...item, type: 'order', price: item.package_price })),
+        ...(storeData || []).map(item => ({ ...item, type: 'store', price: item.total_price })),
+      ]
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 5);
+
+      setPendingOrders(combinedPending);
     } catch (error) {
-      console.error("Error fetching pending orders:", error);
+      console.error("Error fetching pending items:", error);
     }
   };
 
@@ -386,22 +431,35 @@ export default function DashboardPage() {
     contentStats.testimonials.thisMonth;
 
   // ApexCharts options for bar chart - using CSS variable for primary color
+  // Helper to format price
+  const formatRevenueString = (amount) => {
+    if (amount >= 1000000) {
+      return `Rp ${(amount / 1000000).toFixed(1)} jt`;
+    } else if (amount >= 1000) {
+      return `Rp ${Math.round(amount / 1000)} rb`;
+    } else {
+      return `Rp ${amount}`;
+    }
+  };
+
   const barChartOptions = {
     chart: {
       type: "bar",
       height: 350,
+      stacked: true,
       toolbar: {
         show: false,
       },
       fontFamily: "inherit",
     },
-    colors: ["#14dff2"],
+    colors: ["var(--color-primary)", "var(--color-secondary)"],
     plotOptions: {
       bar: {
         horizontal: false,
         columnWidth: "55%",
         borderRadius: 4,
         borderRadiusApplication: "end",
+        borderRadiusWhenStacked: "last",
       },
     },
     dataLabels: {
@@ -411,6 +469,13 @@ export default function DashboardPage() {
       show: true,
       width: 2,
       colors: ["transparent"],
+    },
+    legend: {
+      position: "top",
+      horizontalAlign: "left",
+      labels: {
+        colors: "#64748b",
+      },
     },
     xaxis: {
       categories: orderStats.monthlyData.map((d) => d.month),
@@ -439,8 +504,24 @@ export default function DashboardPage() {
       opacity: 1,
     },
     tooltip: {
-      y: {
-        formatter: (val) => `${val} orders`,
+      shared: true,
+      intersect: false,
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        const ordersCount = orderStats.monthlyData[dataPointIndex]?.count || 0;
+        const ordersRevenue = orderStats.monthlyData[dataPointIndex]?.revenue || 0;
+        const storeCount = orderStats.storeMonthlyData[dataPointIndex]?.count || 0;
+        const storeRevenue = orderStats.storeMonthlyData[dataPointIndex]?.revenue || 0;
+        const month = orderStats.monthlyData[dataPointIndex]?.month || '';
+
+        return `
+          <div class="px-4 py-3 bg-white shadow-lg rounded-lg border border-slate-100">
+            <p class="font-bold text-slate-800 mb-2">${month}</p>
+            <div class="space-y-1 text-sm">
+              <p><span style="color: var(--color-primary)">●</span> Orders: ${ordersCount} / ${formatRevenueString(ordersRevenue)}</p>
+              <p><span style="color: var(--color-secondary)">●</span> Store: ${storeCount} / ${formatRevenueString(storeRevenue)}</p>
+            </div>
+          </div>
+        `;
       },
     },
     grid: {
@@ -453,6 +534,10 @@ export default function DashboardPage() {
     {
       name: "Orders",
       data: orderStats.monthlyData.map((d) => d.count),
+    },
+    {
+      name: "Store",
+      data: orderStats.storeMonthlyData.map((d) => d.count),
     },
   ];
 
@@ -755,10 +840,10 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Pending Orders */}
+          {/* Pending Status (Orders + Store) */}
           <div className="bg-white rounded-2xl border border-slate-200 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-slate-800">Pending Orders</h2>
+              <h2 className="text-lg font-bold text-slate-800">Pending Status</h2>
               <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
                 {pendingOrders.length} pending
               </span>
@@ -767,33 +852,33 @@ export default function DashboardPage() {
             <div className="space-y-3">
               {pendingOrders.length === 0 ? (
                 <p className="text-sm text-slate-500 text-center py-4">
-                  No pending orders
+                  No pending items
                 </p>
               ) : (
-                pendingOrders.map((order) => (
+                pendingOrders.map((item) => (
                   <div
-                    key={order.id}
+                    key={`${item.type}-${item.id}`}
                     className="p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-bold text-slate-800 truncate">
-                          {order.invoice_number}
+                          {item.customer_name} <span className="font-normal text-slate-400">({formatDate(item.created_at)})</span>
                         </p>
                         <p className="text-xs text-slate-500 truncate">
-                          {order.customer_name}
+                          {item.invoice_number}
                         </p>
                       </div>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border bg-amber-50 text-amber-600 border-amber-100 whitespace-nowrap">
-                        Pending
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap ${item.type === 'order'
+                          ? 'bg-primary/10 text-primary border-primary/20'
+                          : 'bg-secondary/10 text-secondary border-secondary/20'
+                        }`}>
+                        {item.type === 'order' ? 'Order' : 'Store'}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-200">
-                      <span className="text-xs text-slate-500">
-                        {formatDate(order.created_at)}
-                      </span>
+                    <div className="flex items-center justify-end mt-2 pt-2 border-t border-slate-200">
                       <span className="text-sm font-bold text-primary">
-                        {formatPrice(order.package_price)}
+                        {formatPrice(item.price)}
                       </span>
                     </div>
                   </div>
