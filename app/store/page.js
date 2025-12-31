@@ -1,10 +1,10 @@
-// app/store/page.js
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import AdSense from '@/components/AdSense';
 
 export default function StorePage() {
     const [items, setItems] = useState([]);
@@ -230,6 +230,15 @@ export default function StorePage() {
                         </div>
                     </div>
 
+                    {/* Top Multiplex Ad */}
+                    <div className="mb-8">
+                        <AdSense
+                            slot="3086683905"
+                            format="autorelaxed"
+                            style={{ display: 'block' }}
+                        />
+                    </div>
+
                     {/* Products Grid */}
                     {loading ? (
                         <div className="flex justify-center items-center h-64">
@@ -334,6 +343,15 @@ export default function StorePage() {
                             ))}
                         </div>
                     )}
+
+                    {/* Bottom Multiplex Ad */}
+                    <div className="mt-12 mb-8">
+                        <AdSense
+                            slot="3086683905"
+                            format="autorelaxed"
+                            style={{ display: 'block' }}
+                        />
+                    </div>
 
                     {/* Pagination */}
                     {totalPages > 1 && (

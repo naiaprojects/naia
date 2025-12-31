@@ -7,6 +7,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import PageViewTracker from '@/components/PageViewTracker';
 
+import Script from 'next/script';
+
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
@@ -146,6 +148,12 @@ export default async function RootLayout({ children }) {
         <SupabaseProvider>
           <LanguageProvider>
             <PageViewTracker />
+            <Script
+              async
+              src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9155919467624383"
+              crossOrigin="anonymous"
+              strategy="afterInteractive"
+            />
             {children}
             <FloatingWhatsApp />
           </LanguageProvider>

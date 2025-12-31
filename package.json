@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "@supabase/ssr": "latest",
+    "@tiptap/extension-image": "^3.14.0",
+    "@tiptap/extension-link": "^3.14.0",
+    "@tiptap/react": "^3.14.0",
+    "@tiptap/starter-kit": "^3.14.0",
     "apexcharts": "^5.3.6",
     "jsvectormap": "^1.7.0",
     "lottie-react": "^2.4.1",

@@ -117,7 +117,8 @@ export async function POST(request) {
             if (insertError) throw insertError;
         }
 
-        const reviewLink = `${process.env.NEXT_PUBLIC_SITE_URL}/review/${invoice_number}`;
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://naia.web.id';
+        const reviewLink = `${baseUrl}/review/${invoice_number}`;
 
         return NextResponse.json({
             success: true,
