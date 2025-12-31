@@ -309,7 +309,7 @@ export default function BlogsPage() {
                                     )}
 
                                     <div className="absolute top-3 right-3">
-                                        <span className="px-3 py-1 bg-gradient-to-r from-primary to-orange-600 text-white text-xs font-bold rounded-full shadow-lg">
+                                        <span className="px-3 py-1 bg-primary text-white text-xs font-bold rounded-full shadow-lg">
                                             {article.category?.name || 'Blog'}
                                         </span>
                                     </div>
