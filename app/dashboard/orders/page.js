@@ -36,6 +36,8 @@ export default function OrdersPage() {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [message, setMessage] = useState({ text: '', type: '' });
     const [processing, setProcessing] = useState(false);
+    const [requestingTestimonial, setRequestingTestimonial] = useState(false);
+    const [testimonialLink, setTestimonialLink] = useState(null);
 
     const itemsPerPage = 10;
 
@@ -224,6 +226,36 @@ export default function OrdersPage() {
             showMessage('Error: ' + e.message, 'error');
         } finally {
             setProcessing(false);
+        }
+    };
+
+    const handleRequestTestimonial = async () => {
+        if (!selectedOrder) return;
+        setRequestingTestimonial(true);
+        setTestimonialLink(null);
+        try {
+            const response = await fetch('/api/testimonials/request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    invoice_number: selectedOrder.invoice_number,
+                    order_type: selectedOrder.type,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Gagal generate link testimoni');
+            }
+
+            setTestimonialLink(data.link);
+            showMessage(data.already_submitted ? 'Testimoni sudah pernah disubmit' : 'Link testimoni berhasil digenerate!');
+        } catch (error) {
+            console.error('Error requesting testimonial:', error);
+            showMessage('Error: ' + error.message, 'error');
+        } finally {
+            setRequestingTestimonial(false);
         }
     };
 
@@ -611,6 +643,44 @@ export default function OrdersPage() {
                                 <div className="flex gap-3 pt-4 border-t border-slate-100">
                                     <button onClick={() => handleStatusChange(selectedOrder.type === 'service' ? 'orders' : 'store_purchases', selectedOrder.id, 'verified')} disabled={processing} className="flex-1 bg-emerald-600 text-white py-3 rounded-xl hover:bg-emerald-700 font-bold disabled:opacity-70">✓ Verify</button>
                                     <button onClick={() => handleStatusChange(selectedOrder.type === 'service' ? 'orders' : 'store_purchases', selectedOrder.id, 'rejected')} disabled={processing} className="flex-1 bg-red-600 text-white py-3 rounded-xl hover:bg-red-700 font-bold disabled:opacity-70">✕ Reject</button>
+                                </div>
+                            )}
+
+                            {/* Request Testimonial */}
+                            {selectedOrder.payment_status === 'verified' && (
+                                <div className="pt-4 border-t border-slate-100 space-y-3">
+                                    <button
+                                        onClick={handleRequestTestimonial}
+                                        disabled={requestingTestimonial}
+                                        className="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 font-bold disabled:opacity-70 flex items-center justify-center gap-2"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                        </svg>
+                                        {requestingTestimonial ? 'Generating...' : 'Request Testimonial'}
+                                    </button>
+                                    {testimonialLink && (
+                                        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                                            <p className="text-xs text-blue-700 font-semibold mb-2">Testimonial Link:</p>
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={testimonialLink}
+                                                    readOnly
+                                                    className="flex-1 bg-white border border-blue-200 rounded-lg px-3 py-2 text-sm font-mono text-slate-700"
+                                                />
+                                                <button
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(testimonialLink);
+                                                        showMessage('Link copied!');
+                                                    }}
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+                                                >
+                                                    Copy
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
