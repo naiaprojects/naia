@@ -1,6 +1,41 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase-client';
+
 const LogoPathAnimation = () => {
+  const [logoSvg, setLogoSvg] = useState(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const fetchLogoSvg = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'loading_logo_svg')
+          .single();
+
+        if (!error && data?.value) {
+          setLogoSvg(data.value);
+        }
+      } catch (err) {
+        console.error('Error fetching logo SVG:', err);
+      }
+    };
+
+    fetchLogoSvg();
+  }, []);
+
+  if (logoSvg) {
+    return (
+      <div
+        className="w-24 h-24"
+        dangerouslySetInnerHTML={{ __html: logoSvg }}
+      />
+    );
+  }
+
   return (
     <svg
       className="w-24 h-24"

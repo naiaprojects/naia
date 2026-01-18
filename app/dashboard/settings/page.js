@@ -476,6 +476,22 @@ export default function SettingsPage() {
                     helperText="Icon for browser tab (32x32px or 16x16px)"
                   />
                 </div>
+                <div className="space-y-3">
+                  <label className="block text-sm font-bold text-slate-700">Loading Logo SVG</label>
+                  <textarea
+                    value={settings.loading_logo_svg || ''}
+                    onChange={(e) => handleChange('loading_logo_svg', e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 font-mono text-xs"
+                    rows={6}
+                    placeholder="Paste SVG code untuk logo loading..."
+                  />
+                  <p className="text-xs text-slate-500">Paste kode SVG lengkap untuk logo loading animation. Kosongkan untuk menggunakan logo default.</p>
+                  {settings.loading_logo_svg && (
+                    <div className="p-4 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center">
+                      <div dangerouslySetInnerHTML={{ __html: settings.loading_logo_svg }} />
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Theme Colors */}
@@ -548,9 +564,8 @@ export default function SettingsPage() {
           {activeTab === 'cta' && (
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-4">CTA & WhatsApp Settings</h2>
+              <p className="text-sm text-slate-500 -mt-2">CTA Title dan Subtitle dapat diatur di tab <strong>Home Content</strong> dengan multi bahasa.</p>
               <div className="grid gap-5">
-                <FormInput label="CTA Title" value={settings.cta_title || ''} onChange={(v) => handleChange('cta_title', v)} />
-                <FormTextarea label="CTA Subtitle" value={settings.cta_subtitle || ''} onChange={(v) => handleChange('cta_subtitle', v)} rows={2} />
                 <FileUploader
                   label="CTA Background Image"
                   value={settings.cta_background_image || ''}

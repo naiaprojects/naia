@@ -9,13 +9,13 @@ const CTA = ({ data = {} }) => {
   const { t, language } = useLanguage();
 
   const ctaData = {
-    cta_title: data.cta_title || t('cta.title'),
-    cta_subtitle: data.cta_subtitle || t('cta.subtitle'),
+    cta_title: t('cta.title'),
+    cta_subtitle: t('cta.subtitle'),
     cta_background_image: data.cta_background_image || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQURFZv63UernQRlg8fAFzNp6fn7ugpbKDDhbothv6W-s6p8-CRV3YakUJkwfi07mfDcVJxTwYgf_5O88U5YByKEx1W-tE5z8Kkk8V5ExtcGbWgn0hFU6FTp5Eg1lFstjPp8aX33MgPs6XJd3TcysXZ5UIuLy2VtNq6aPAWakWe2BFcEL7Je0GkGI_744/s3000/19381187_6125995.webp',
     cta_button_text: data.cta_button_text || t('cta.button'),
-    cta_button_portfolio_text: data.cta_button_portfolio_text || t('cta.portfolioButton'),
+    cta_button_portfolio_text: data.cta_button_portfolio_text || 'Lihat Portofolio',
     whatsapp_number: data.whatsapp_number || '6281320858595',
-    whatsapp_message: data.whatsapp_message || t('cta.whatsappMessage')
+    whatsapp_message: t('cta.whatsappMessage')
   };
 
   const handleWhatsAppClick = () => {
