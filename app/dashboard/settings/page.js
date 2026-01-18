@@ -551,8 +551,13 @@ export default function SettingsPage() {
               <div className="grid gap-5">
                 <FormInput label="CTA Title" value={settings.cta_title || ''} onChange={(v) => handleChange('cta_title', v)} />
                 <FormTextarea label="CTA Subtitle" value={settings.cta_subtitle || ''} onChange={(v) => handleChange('cta_subtitle', v)} rows={2} />
-                <FormInput label="CTA Background Image URL" value={settings.cta_background_image || ''} onChange={(v) => handleChange('cta_background_image', v)} />
-                {settings.cta_background_image && <img src={settings.cta_background_image} alt="CTA BG" className="h-24 rounded object-cover" />}
+                <FileUploader
+                  label="CTA Background Image"
+                  value={settings.cta_background_image || ''}
+                  onChange={(url) => handleChange('cta_background_image', url)}
+                  folder="cta"
+                  helperText="Upload gambar background untuk CTA section"
+                />
                 <div className="grid md:grid-cols-2 gap-4">
                   <FormInput label="WhatsApp Button Text" value={settings.cta_button_text || ''} onChange={(v) => handleChange('cta_button_text', v)} />
                   <FormInput label="Portfolio Button Text" value={settings.cta_button_portfolio_text || ''} onChange={(v) => handleChange('cta_button_portfolio_text', v)} />
