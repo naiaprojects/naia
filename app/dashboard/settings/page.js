@@ -667,18 +667,20 @@ export default function SettingsPage() {
               <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-4">Hero Banner Content</h2>
               <FormInput label="Headline Title" value={heroFormData.title} onChange={(v) => setHeroFormData({ ...heroFormData, title: v })} required />
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <FormInput label="Background Image/Lottie" value={heroFormData.background_image} onChange={(v) => setHeroFormData({ ...heroFormData, background_image: v })} />
-                  <div className="h-40 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center">
-                    {heroFormData.background_image ? (heroFormData.background_image.endsWith('.json') ? <HeroLottie src={heroFormData.background_image} className="w-full h-full object-cover" /> : <img src={heroFormData.background_image} className="w-full h-full object-cover" />) : <span className="text-slate-400">No Preview</span>}
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <FormInput label="Right Image/Lottie" value={heroFormData.right_image} onChange={(v) => setHeroFormData({ ...heroFormData, right_image: v })} />
-                  <div className="h-40 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center">
-                    {heroFormData.right_image ? (heroFormData.right_image.endsWith('.json') ? <HeroLottie src={heroFormData.right_image} className="w-full h-full object-contain p-4" /> : <img src={heroFormData.right_image} className="w-full h-full object-contain p-4" />) : <span className="text-slate-400">No Preview</span>}
-                  </div>
-                </div>
+                <FileUploader
+                  label="Background Image/Lottie"
+                  value={heroFormData.background_image || ''}
+                  onChange={(url) => setHeroFormData({ ...heroFormData, background_image: url })}
+                  folder="hero"
+                  helperText="Upload gambar atau file Lottie (.json) untuk background hero"
+                />
+                <FileUploader
+                  label="Right Image/Lottie"
+                  value={heroFormData.right_image || ''}
+                  onChange={(url) => setHeroFormData({ ...heroFormData, right_image: url })}
+                  folder="hero"
+                  helperText="Upload gambar atau file Lottie (.json) untuk sisi kanan hero"
+                />
               </div>
               <SaveButton type="submit" saving={saving} />
             </form>
