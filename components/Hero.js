@@ -10,6 +10,7 @@ export default function Hero() {
   const { language } = useLanguage();
   const [heroData, setHeroData] = useState(null);
   const [features, setFeatures] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,17 +27,24 @@ export default function Hero() {
 
       setHeroData(heroRes);
       setFeatures(featuresRes || []);
+      setLoading(false);
     };
 
     fetchData();
   }, []);
 
-  const hero = heroData || {
-    title_id: 'Transformasi Blogspot Anda Menjadi Website Premium',
-    title_en: 'Transform Your Blogspot Into a Premium Website',
-    background_image: '',
-    right_image: ''
-  };
+  if (loading || !heroData) {
+    return (
+      <section
+        id="hero-section"
+        className="mx-4 rounded-b-3xl bg-primary md:min-h-screen relative overflow-hidden flex items-center justify-center"
+      >
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white"></div>
+      </section>
+    );
+  }
+
+  const hero = heroData;
 
   const heroTitle = language === 'id'
     ? (hero.title_id || hero.title || hero.title_en)
@@ -46,11 +54,14 @@ export default function Hero() {
     ? hero.background_image
     : (hero.right_image?.endsWith('.json') ? hero.right_image : null);
 
+  const hasBackgroundImage = hero.background_image && !hero.background_image.endsWith('.json');
+  const hasRightImage = hero.right_image && !hero.right_image.endsWith('.json');
+
   return (
     <section
       id="hero-section"
       className="mx-4 rounded-b-3xl bg-primary md:min-h-screen relative overflow-hidden bg-center bg-cover"
-      style={{ backgroundImage: `url('${hero.background_image}')` }}
+      style={hasBackgroundImage ? { backgroundImage: `url('${hero.background_image}')` } : {}}
     >
       <div className="pt-16 md:pt-32 max-w-7xl mx-auto flex flex-col-reverse md:flex-row items-center">
         <div className="w-full md:w-7/12 p-8 md:pb-24 sm:pb-8">
@@ -93,16 +104,17 @@ export default function Hero() {
           <div className="absolute inset-0 transform hover:scale-105 transition-transform duration-300"></div>
           {lottieSource ? (
             <HeroLottie src={lottieSource} className="w-full h-full" />
-          ) : (
+          ) : hasRightImage ? (
             <img
               alt="Desain Orisinil"
               className="relative object-cover w-full h-full transition duration-500 hover:rotate-2 hover:scale-110 rounded-lg"
               src={hero.right_image}
             />
-          )}
+          ) : null}
         </div>
       </div>
     </section>
   );
 }
+
 
