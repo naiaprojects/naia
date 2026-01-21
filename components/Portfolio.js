@@ -70,7 +70,7 @@ export default function Portfolio({ data = [] }) {
                     href={item.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-primary hover:bg-orange-600 text-white px-8 py-3 rounded-full font-medium transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg z-10"
+                    className="bg-primary text-white px-8 py-3 rounded-full font-medium transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg z-10"
                   >
                     {visitWebsiteText}
                   </a>
@@ -85,7 +85,7 @@ export default function Portfolio({ data = [] }) {
             <div className="flex justify-center gap-2">
               <button
                 onClick={() => setShowAll(!showAll)}
-                className="inline-block rounded-full px-6 py-3 text-md text-white transition bg-gradient-to-r from-primary to-orange-600 hover:from-orange-700 hover:to-red-700"
+                className="inline-block rounded-full px-6 py-3 text-md text-white transition bg-primary"
               >
                 {showAll ? showLessText : showAllText}
               </button>

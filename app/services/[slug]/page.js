@@ -32,6 +32,23 @@ async function getHeroContent() {
     return data;
 }
 
+async function getSettings() {
+    const supabase = createClient();
+    const { data, error } = await supabase
+        .from('site_settings')
+        .select('key, value, value_id, value_en');
+
+    if (error) return {};
+
+    const settings = {};
+    data?.forEach(item => {
+        settings[item.key] = item.value;
+        if (item.value_id) settings[`${item.key}_id`] = item.value_id;
+        if (item.value_en) settings[`${item.key}_en`] = item.value_en;
+    });
+    return settings;
+}
+
 const formatPrice = (price) => {
     return new Intl.NumberFormat('id-ID', {
         style: 'currency',
@@ -43,6 +60,7 @@ const formatPrice = (price) => {
 export default async function ServicePage({ params }) {
     const service = await getService(params.slug);
     const heroContent = await getHeroContent();
+    const settings = await getSettings();
 
     if (!service) {
         notFound();
@@ -158,10 +176,10 @@ export default async function ServicePage({ params }) {
                                         <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 text-xs font-bold mb-6 backdrop-blur-sm border border-white/10">PREMIUM CHOICE</span>
                                         <h3 className="text-3xl font-bold mb-4">{specialPackage.name}</h3>
                                         <p className="text-slate-300 mb-8 leading-relaxed text-sm">{specialPackage.description}</p>
-                                        <div className="text-5xl font-bold text-primary mb-8">{formatPrice(specialPackage.price)}</div>
+                                        <div className="text-5xl font-bold text-white mb-8">{formatPrice(specialPackage.price)}</div>
                                         <Link
                                             href={`/briefing?service=${service.slug}&package=${encodeURIComponent(specialPackage.name)}`}
-                                            className="w-full block text-center py-4 bg-primary text-slate-800 rounded-xl font-bold hover:bg-primary/80 transition shadow-lg shadow-orange-500/30"
+                                            className="w-full block text-center py-4 bg-white text-slate-800 rounded-xl font-bold hover:bg-primary/80 transition shadow-lg shadow-slate-500/30"
                                         >
                                             Order Special Package Now!
                                         </Link>
@@ -195,7 +213,7 @@ export default async function ServicePage({ params }) {
                 </div>
             </section>
 
-            <CTA />
+            <CTA data={settings} />
             <Footer />
         </main>
     );
