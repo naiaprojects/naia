@@ -1,24 +1,35 @@
-import { createClient } from '@/lib/supabase-server';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase-client';
+import { useLanguage } from '@/lib/LanguageContext';
 import HeroLottie from './HeroLottie';
-import { cookies } from 'next/headers';
 
-export const dynamic = 'force-dynamic';
-
-export default async function Hero() {
+export default function Hero() {
   const supabase = createClient();
-  const cookieStore = cookies();
-  const currentLang = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const { language } = useLanguage();
+  const [heroData, setHeroData] = useState(null);
+  const [features, setFeatures] = useState([]);
 
-  const { data: heroData } = await supabase
-    .from('hero_content')
-    .select('*')
-    .single();
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: heroRes } = await supabase
+        .from('hero_content')
+        .select('*')
+        .single();
 
-  const { data: features } = await supabase
-    .from('hero_features')
-    .select('*')
-    .eq('is_active', true)
-    .order('position', { ascending: true });
+      const { data: featuresRes } = await supabase
+        .from('hero_features')
+        .select('*')
+        .eq('is_active', true)
+        .order('position', { ascending: true });
+
+      setHeroData(heroRes);
+      setFeatures(featuresRes || []);
+    };
+
+    fetchData();
+  }, []);
 
   const hero = heroData || {
     title_id: 'Transformasi Blogspot Anda Menjadi Website Premium',
@@ -27,7 +38,7 @@ export default async function Hero() {
     right_image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEimRipe1eBeaGjLIafhSbzS2433hUKOOcMvH9WZwP7f6BpattbInLQaMu5u5ewGKwWF6T0EV_PkGOvGRvAefBXmIFVx3usVU62LHaQj7KQvXmMJwd9ipsOpLu80HFnqW8YsA9uryWc5ECGsTV3eETAuEFQDgShwZjC2-pVadbfpP2wjvyqjJ6HhLl3hBCU/s1600/HeroBg.webp'
   };
 
-  const heroTitle = currentLang === 'id'
+  const heroTitle = language === 'id'
     ? (hero.title_id || hero.title || hero.title_en)
     : (hero.title_en || hero.title || hero.title_id);
 
@@ -38,7 +49,8 @@ export default async function Hero() {
   return (
     <section
       id="hero-section"
-      className="mx-4 rounded-b-3xl bg-primary md:min-h-screen relative overflow-hidden bg-center bg-cover" style={{ backgroundImage: `url('${hero.background_image}')` }}
+      className="mx-4 rounded-b-3xl bg-primary md:min-h-screen relative overflow-hidden bg-center bg-cover"
+      style={{ backgroundImage: `url('${hero.background_image}')` }}
     >
       <div className="pt-16 md:pt-32 max-w-7xl mx-auto flex flex-col-reverse md:flex-row items-center">
         <div className="w-full md:w-7/12 p-8 md:pb-24 sm:pb-8">
@@ -47,11 +59,11 @@ export default async function Hero() {
           </h1>
 
           <div className="hidden md:block mt-6 sm:mt-16 space-y-6">
-            {features?.map((feature) => {
-              const featureTitle = currentLang === 'id'
+            {features.map((feature) => {
+              const featureTitle = language === 'id'
                 ? (feature.title_id || feature.title || feature.title_en)
                 : (feature.title_en || feature.title || feature.title_id);
-              const featureDesc = currentLang === 'id'
+              const featureDesc = language === 'id'
                 ? (feature.description_id || feature.description || feature.description_en)
                 : (feature.description_en || feature.description || feature.description_id);
 
@@ -93,3 +105,4 @@ export default async function Hero() {
     </section>
   );
 }
+
