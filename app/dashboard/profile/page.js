@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase-client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Breadcrumb from '@/components/Breadcrumb';
 import LogoPathAnimation from '@/components/LogoPathAnimation';
 
@@ -11,13 +11,13 @@ import LogoPathAnimation from '@/components/LogoPathAnimation';
 export default function ProfilePage() {
     const supabase = createClient();
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [user, setUser] = useState(null);
     const [message, setMessage] = useState({ text: '', type: '' });
 
-    // Modal states
     const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
@@ -33,8 +33,52 @@ export default function ProfilePage() {
     const COOLDOWN_PERIOD = 5000;
 
     useEffect(() => {
+        const handleEmailConfirmation = async () => {
+            const token_hash = searchParams.get('token_hash');
+            const type = searchParams.get('type');
+
+            if (token_hash && type) {
+                try {
+                    const { error } = await supabase.auth.verifyOtp({
+                        token_hash,
+                        type: type
+                    });
+
+                    if (error) {
+                        console.error('Error verifying token:', error);
+                        showMessage('Gagal memverifikasi email. Link mungkin sudah kadaluarsa.', 'error');
+                        router.replace('/dashboard/profile');
+                        return;
+                    }
+
+                    showMessage('Email berhasil diverifikasi dan diperbarui!', 'success');
+                    router.replace('/dashboard/profile');
+                    await fetchUser();
+                } catch (error) {
+                    console.error('Verification error:', error);
+                    showMessage('Terjadi kesalahan saat memverifikasi email.', 'error');
+                    router.replace('/dashboard/profile');
+                }
+            } else {
+                const success = searchParams.get('success');
+                const error = searchParams.get('error');
+
+                if (success === 'email_verified') {
+                    showMessage('Email berhasil diverifikasi dan diperbarui!', 'success');
+                    router.replace('/dashboard/profile');
+                } else if (error === 'verification_failed') {
+                    showMessage('Gagal memverifikasi email. Link mungkin sudah kadaluarsa.', 'error');
+                    router.replace('/dashboard/profile');
+                } else if (error === 'callback_error') {
+                    showMessage('Terjadi kesalahan saat memproses konfirmasi.', 'error');
+                    router.replace('/dashboard/profile');
+                }
+            }
+        };
+
         fetchUser();
-    }, []);
+        handleEmailConfirmation();
+    }, [searchParams]);
 
     const fetchUser = async () => {
         const { data: { user } } = await supabase.auth.getUser();
