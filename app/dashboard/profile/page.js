@@ -34,6 +34,27 @@ export default function ProfilePage() {
 
     useEffect(() => {
         const handleEmailConfirmation = async () => {
+            const message = searchParams.get('message');
+            const hash = window.location.hash;
+
+            if (message && message.includes('Confirmation link accepted')) {
+                try {
+                    await supabase.auth.refreshSession();
+
+                    setTimeout(async () => {
+                        await fetchUser();
+                        showMessage('Email berhasil diverifikasi! Silakan refresh halaman jika email belum berubah.', 'success');
+                    }, 1000);
+
+                    router.replace('/dashboard/profile');
+                } catch (error) {
+                    console.error('Session refresh error:', error);
+                    showMessage('Konfirmasi diterima. Silakan refresh halaman.', 'success');
+                    router.replace('/dashboard/profile');
+                }
+                return;
+            }
+
             const token_hash = searchParams.get('token_hash');
             const type = searchParams.get('type');
 

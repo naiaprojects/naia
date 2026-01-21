@@ -36,7 +36,7 @@ export default function DashboardHeader({
                 .limit(5);
 
             if (error) {
-                if (error.code === 'PGRST301' || error.message.includes('401')) {
+                if (error.code === 'PGRST301' || error.code === '42501' || error.message.includes('401') || error.message.includes('permission denied')) {
                     return;
                 }
                 throw error;
@@ -44,7 +44,7 @@ export default function DashboardHeader({
             setNotifications(data || []);
             setUnreadCount(data?.filter(n => !n.is_read).length || 0);
         } catch (error) {
-            if (!error.message.includes('401') && !error.message.includes('unauthorized')) {
+            if (!error.message.includes('401') && !error.message.includes('unauthorized') && !error.message.includes('permission denied')) {
                 console.error('Error fetching notifications:', error);
             }
         }
