@@ -1,11 +1,10 @@
-// components/FAQ.js
 "use client";
 
 import { useState } from 'react';
 import { useLanguage } from '@/lib/LanguageContext';
 
 const FAQ = ({ data = [] }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeIndex, setActiveIndex] = useState(null);
 
   const toggleAccordion = (index) => {
@@ -24,32 +23,41 @@ const FAQ = ({ data = [] }) => {
           </p>
         </div>
         <div className="sm:mt-12 flex flex-col divide-y px-6 divide-slate-100 font-bold">
-          {data.map((item, index) => (
-            <div key={item.id} className="faq-item">
-              <button
-                className="py-4 outline-none cursor-pointer focus:text-primary w-full text-left flex justify-between items-center"
-                onClick={() => toggleAccordion(index)}
-              >
-                <span>{item.question}</span>
-                <svg
-                  className={`w-5 h-5 transition-transform duration-300 ${activeIndex === index ? 'transform rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+          {data.map((item, index) => {
+            const question = language === 'id'
+              ? (item.question_id || item.question || item.question_en)
+              : (item.question_en || item.question || item.question_id);
+            const answer = language === 'id'
+              ? (item.answer_id || item.answer || item.answer_en)
+              : (item.answer_en || item.answer || item.answer_id);
+
+            return (
+              <div key={item.id} className="faq-item">
+                <button
+                  className="py-4 outline-none cursor-pointer focus:text-primary w-full text-left flex justify-between items-center"
+                  onClick={() => toggleAccordion(index)}
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </button>
-              <div
-                className={`overflow-hidden transition-all duration-300 ${activeIndex === index ? 'max-h-96' : 'max-h-0'}`}
-              >
-                <div className="px-4 pb-4 font-medium">
-                  <p>{item.answer}</p>
+                  <span>{question}</span>
+                  <svg
+                    className={`w-5 h-5 transition-transform duration-300 ${activeIndex === index ? 'transform rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                <div
+                  className={`overflow-hidden transition-all duration-300 ${activeIndex === index ? 'max-h-96' : 'max-h-0'}`}
+                >
+                  <div className="px-4 pb-4 font-medium">
+                    <p>{answer}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

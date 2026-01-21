@@ -34,11 +34,14 @@ export default function FAQManagementPage() {
 
     // Form State
     const [formData, setFormData] = useState({
-        question: '',
-        answer: '',
+        question_id: '',
+        question_en: '',
+        answer_id: '',
+        answer_en: '',
         position: 0,
         is_active: true
     });
+    const [faqLangTab, setFaqLangTab] = useState('id');
 
     useEffect(() => {
         fetchData();
@@ -169,22 +172,28 @@ export default function FAQManagementPage() {
     const openCreateModal = () => {
         setEditItem(null);
         setFormData({
-            question: '',
-            answer: '',
+            question_id: '',
+            question_en: '',
+            answer_id: '',
+            answer_en: '',
             position: faqItems.length + 1,
             is_active: true
         });
+        setFaqLangTab('id');
         setIsModalOpen(true);
     };
 
     const openEditModal = (item) => {
         setEditItem(item);
         setFormData({
-            question: item.question,
-            answer: item.answer,
+            question_id: item.question_id || item.question || '',
+            question_en: item.question_en || item.question || '',
+            answer_id: item.answer_id || item.answer || '',
+            answer_en: item.answer_en || item.answer || '',
             position: item.position,
             is_active: item.is_active
         });
+        setFaqLangTab('id');
         setIsModalOpen(true);
     };
 
@@ -533,26 +542,42 @@ export default function FAQManagementPage() {
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                            <div className="flex bg-slate-100 p-1 rounded-lg mb-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setFaqLangTab('id')}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all flex-1 ${faqLangTab === 'id' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-900/50 hover:text-slate-900'}`}
+                                >
+                                    🇮🇩 Bahasa
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setFaqLangTab('en')}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all flex-1 ${faqLangTab === 'en' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-900/50 hover:text-slate-900'}`}
+                                >
+                                    🇬🇧 English
+                                </button>
+                            </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">Question</label>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">Question ({faqLangTab === 'id' ? 'Bahasa Indonesia' : 'English'})</label>
                                 <input
                                     type="text"
-                                    value={formData.question}
-                                    onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+                                    value={faqLangTab === 'id' ? formData.question_id : formData.question_en}
+                                    onChange={(e) => setFormData({ ...formData, [faqLangTab === 'id' ? 'question_id' : 'question_en']: e.target.value })}
                                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all font-medium"
-                                    placeholder="e.g. How do I order?"
+                                    placeholder={`e.g. ${faqLangTab === 'id' ? 'Bagaimana cara memesan?' : 'How do I order?'}`}
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">Answer</label>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">Answer ({faqLangTab === 'id' ? 'Bahasa Indonesia' : 'English'})</label>
                                 <textarea
-                                    value={formData.answer}
-                                    onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
+                                    value={faqLangTab === 'id' ? formData.answer_id : formData.answer_en}
+                                    onChange={(e) => setFormData({ ...formData, [faqLangTab === 'id' ? 'answer_id' : 'answer_en']: e.target.value })}
                                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all font-medium min-h-[120px]"
-                                    placeholder="Enter the detailed answer..."
+                                    placeholder={`Enter the detailed answer in ${faqLangTab === 'id' ? 'Bahasa Indonesia' : 'English'}...`}
                                     required
                                 />
                             </div>
