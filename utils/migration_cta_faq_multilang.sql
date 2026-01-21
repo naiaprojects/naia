@@ -11,6 +11,25 @@ SET question_en = question,
     answer_id = answer
 WHERE question_en IS NULL;
 
+ALTER TABLE faq_items 
+  ALTER COLUMN question DROP NOT NULL,
+  ALTER COLUMN answer DROP NOT NULL;
+
+CREATE OR REPLACE FUNCTION update_faq_legacy_columns()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.question := COALESCE(NEW.question_en, NEW.question_id, '');
+  NEW.answer := COALESCE(NEW.answer_en, NEW.answer_id, '');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS faq_legacy_columns_trigger ON faq_items;
+CREATE TRIGGER faq_legacy_columns_trigger
+  BEFORE INSERT OR UPDATE ON faq_items
+  FOR EACH ROW
+  EXECUTE FUNCTION update_faq_legacy_columns();
+
 ALTER TABLE site_settings
   ADD COLUMN IF NOT EXISTS value_id TEXT,
   ADD COLUMN IF NOT EXISTS value_en TEXT;

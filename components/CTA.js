@@ -18,7 +18,7 @@ const CTA = ({ data = {} }) => {
   const ctaData = {
     cta_title: t('cta.title'),
     cta_subtitle: t('cta.subtitle'),
-    cta_background_image: data.cta_background_image || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQURFZv63UernQRlg8fAFzNp6fn7ugpbKDDhbothv6W-s6p8-CRV3YakUJkwfi07mfDcVJxTwYgf_5O88U5YByKEx1W-tE5z8Kkk8V5ExtcGbWgn0hFU6FTp5Eg1lFstjPp8aX33MgPs6XJd3TcysXZ5UIuLy2VtNq6aPAWakWe2BFcEL7Je0GkGI_744/s3000/19381187_6125995.webp',
+    cta_background_image: data.cta_background_image || '',
     cta_button_text: whatsappButtonText,
     cta_button_portfolio_text: portfolioButtonText,
     whatsapp_number: data.whatsapp_number || '6281320858595',

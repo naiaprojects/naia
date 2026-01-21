@@ -34,8 +34,8 @@ export default function Hero() {
   const hero = heroData || {
     title_id: 'Transformasi Blogspot Anda Menjadi Website Premium',
     title_en: 'Transform Your Blogspot Into a Premium Website',
-    background_image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQURFZv63UernQRlg8fAFzNp6fn7ugpbKDDhbothv6W-s6p8-CRV3YakUJkwfi07mfDcVJxTwYgf_5O88U5YByKEx1W-tE5z8Kkk8V5ExtcGbWgn0hFU6FTp5Eg1lFstjPp8aX33MgPs6XJd3TcysXZ5UIuLy2VtNq6aPAWakWe2BFcEL7Je0GkGI_744/s1920/19381187_6125995.webp',
-    right_image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEimRipe1eBeaGjLIafhSbzS2433hUKOOcMvH9WZwP7f6BpattbInLQaMu5u5ewGKwWF6T0EV_PkGOvGRvAefBXmIFVx3usVU62LHaQj7KQvXmMJwd9ipsOpLu80HFnqW8YsA9uryWc5ECGsTV3eETAuEFQDgShwZjC2-pVadbfpP2wjvyqjJ6HhLl3hBCU/s1600/HeroBg.webp'
+    background_image: '',
+    right_image: ''
   };
 
   const heroTitle = language === 'id'
