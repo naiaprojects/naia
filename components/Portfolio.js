@@ -9,8 +9,7 @@ export default function Portfolio({ data = [] }) {
   const [modalData, setModalData] = useState({ image: '', title: '', link: '' });
   const [showAll, setShowAll] = useState(false);
 
-  // Tampilkan 3 pertama atau semua
-  const displayedPortfolio = showAll ? data : data.slice(0, 3);
+  const displayedPortfolio = showAll ? data : data.slice(0, 9);
 
   const openModal = (item) => {
     setModalData(item);
@@ -50,9 +49,7 @@ export default function Portfolio({ data = [] }) {
                 loading="lazy"
               />
 
-              {/* Overlay with actions */}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none group-hover:pointer-events-auto">
-                {/* Top Right Eye Icon */}
                 <button
                   onClick={() => openModal(item)}
                   className="absolute top-4 right-4 p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-primary z-10 transition-colors"
@@ -64,7 +61,6 @@ export default function Portfolio({ data = [] }) {
                   </svg>
                 </button>
 
-                {/* Center Link Button */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <a
                     href={item.link}
@@ -80,7 +76,7 @@ export default function Portfolio({ data = [] }) {
           ))}
         </div>
 
-        {data.length > 3 && (
+        {data.length > 9 && (
           <div className="mt-16">
             <div className="flex justify-center gap-2">
               <button

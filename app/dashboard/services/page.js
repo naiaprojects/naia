@@ -48,10 +48,13 @@ export default function ServicesPage() {
     const [isServiceModalOpen, setServiceModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [currentService, setCurrentService] = useState(null);
+    const [serviceLangTab, setServiceLangTab] = useState('id');
     const [formData, setFormData] = useState({
-        title: '',
+        title_id: '',
+        title_en: '',
         slug: '',
-        description: '',
+        description_id: '',
+        description_en: '',
         icon_url: '',
         is_active: true,
         packages: []
@@ -150,7 +153,8 @@ export default function ServicesPage() {
     // -- Handlers: Service --
     const openCreateModal = () => {
         setIsEditing(false);
-        setFormData({ title: '', slug: '', description: '', icon_url: '', is_active: true, packages: [] });
+        setFormData({ title_id: '', title_en: '', slug: '', description_id: '', description_en: '', icon_url: '', is_active: true, packages: [] });
+        setServiceLangTab('id');
         setServiceModalOpen(true);
     };
 
@@ -158,13 +162,16 @@ export default function ServicesPage() {
         setIsEditing(true);
         setCurrentService(service);
         setFormData({
-            title: service.title,
+            title_id: service.title_id || service.title || '',
+            title_en: service.title_en || service.title || '',
             slug: service.slug,
-            description: service.description || '',
+            description_id: service.description_id || service.description || '',
+            description_en: service.description_en || service.description || '',
             icon_url: service.icon_url || '',
             is_active: service.is_active,
             packages: service.packages || []
         });
+        setServiceLangTab('id');
         setServiceModalOpen(true);
     };
 
@@ -534,16 +541,35 @@ export default function ServicesPage() {
                 maxWidth="max-w-4xl"
             >
                 <form onSubmit={handleServiceSubmit} className="space-y-8">
-                    {/* Basic Info */}
                     <div className="space-y-4">
-                        <h4 className="border-b border-gray-200 pb-2 text-sm font-semibold text-gray-800 uppercase tracking-wider">
-                            Basic Information
-                        </h4>
+                        <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+                            <h4 className="text-sm font-semibold text-gray-800 uppercase tracking-wider">
+                                Basic Information
+                            </h4>
+                            <div className="flex bg-gray-100 p-1 rounded-lg">
+                                <button
+                                    type="button"
+                                    onClick={() => setServiceLangTab('id')}
+                                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${serviceLangTab === 'id' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+                                >
+                                    🇮🇩 Bahasa
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setServiceLangTab('en')}
+                                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${serviceLangTab === 'en' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+                                >
+                                    🇬🇧 English
+                                </button>
+                            </div>
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Service Name</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Service Name ({serviceLangTab === 'id' ? 'Bahasa Indonesia' : 'English'})</label>
                                 <input required type="text" className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm outline-none"
-                                    value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Logo Design" />
+                                    value={serviceLangTab === 'id' ? formData.title_id : formData.title_en}
+                                    onChange={e => setFormData({ ...formData, [serviceLangTab === 'id' ? 'title_id' : 'title_en']: e.target.value })}
+                                    placeholder={`e.g. ${serviceLangTab === 'id' ? 'Desain Logo' : 'Logo Design'}`} />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Slug URL</label>
@@ -551,9 +577,11 @@ export default function ServicesPage() {
                                     value={formData.slug} onChange={e => setFormData({ ...formData, slug: e.target.value })} placeholder="e.g. logo-design" />
                             </div>
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Description ({serviceLangTab === 'id' ? 'Bahasa Indonesia' : 'English'})</label>
                                 <textarea rows="3" className="w-full p-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm outline-none"
-                                    value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Short service description..." />
+                                    value={serviceLangTab === 'id' ? formData.description_id : formData.description_en}
+                                    onChange={e => setFormData({ ...formData, [serviceLangTab === 'id' ? 'description_id' : 'description_en']: e.target.value })}
+                                    placeholder={`Short service description in ${serviceLangTab === 'id' ? 'Bahasa Indonesia' : 'English'}...`} />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Icon URL</label>

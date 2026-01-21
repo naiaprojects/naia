@@ -66,33 +66,40 @@ export default async function ServicePage({ params }) {
         notFound();
     }
 
-    // Parse packages from JSON (default to empty array if null)
     const packages = service.packages || [];
     const regularPackages = packages.filter(pkg => !pkg.is_special);
     const specialPackage = packages.find(pkg => pkg.is_special);
 
-    // Determine if we need to show empty state
     const hasPackages = packages.length > 0;
+
+    const { cookies } = await import('next/headers');
+    const cookieStore = cookies();
+    const currentLang = cookieStore.get('NEXT_LOCALE')?.value || 'id';
+
+    const serviceTitle = currentLang === 'id'
+        ? (service.title_id || service.title || service.title_en)
+        : (service.title_en || service.title || service.title_id);
+    const serviceDescription = currentLang === 'id'
+        ? (service.description_id || service.description || service.description_en)
+        : (service.description_en || service.description || service.description_id);
 
     return (
         <main>
             <Navbar />
 
-            {/* Service Hero Section */}
             <section
                 id="hero-section"
                 className="mx-4 rounded-b-3xl bg-primary pt-32 pb-20 relative overflow-hidden bg-center bg-cover shadow-2xl mb-12"
                 style={heroContent?.background_image ? { backgroundImage: `url('${heroContent.background_image}')` } : {}}
             >
-                {/* Overlay for better text readability */}
                 <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
 
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center relative z-10">
                     <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight leading-tight text-white">
-                        {service.title}
+                        {serviceTitle}
                     </h1>
                     <p className="text-lg md:text-xl text-orange-100 max-w-3xl mx-auto leading-relaxed">
-                        {service.description}
+                        {serviceDescription}
                     </p>
                 </div>
             </section>
