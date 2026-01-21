@@ -35,11 +35,18 @@ export default function DashboardHeader({
                 .order('created_at', { ascending: false })
                 .limit(5);
 
-            if (error) throw error;
+            if (error) {
+                if (error.code === 'PGRST301' || error.message.includes('401')) {
+                    return;
+                }
+                throw error;
+            }
             setNotifications(data || []);
             setUnreadCount(data?.filter(n => !n.is_read).length || 0);
         } catch (error) {
-            console.error('Error fetching notifications:', error);
+            if (!error.message.includes('401') && !error.message.includes('unauthorized')) {
+                console.error('Error fetching notifications:', error);
+            }
         }
     };
 

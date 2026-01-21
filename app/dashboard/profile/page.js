@@ -29,6 +29,9 @@ export default function ProfilePage() {
         confirmPassword: ''
     });
 
+    const [lastUpdateTime, setLastUpdateTime] = useState(0);
+    const COOLDOWN_PERIOD = 5000;
+
     useEffect(() => {
         fetchUser();
     }, []);
@@ -53,12 +56,27 @@ export default function ProfilePage() {
 
     const handleUpdateEmail = async (e) => {
         e.preventDefault();
+
+        const now = Date.now();
+        if (now - lastUpdateTime < COOLDOWN_PERIOD) {
+            const remainingTime = Math.ceil((COOLDOWN_PERIOD - (now - lastUpdateTime)) / 1000);
+            showMessage(`Mohon tunggu ${remainingTime} detik sebelum mencoba lagi.`, 'error');
+            return;
+        }
+
         setSaving(true);
         try {
             const { error } = await supabase.auth.updateUser({ email: formData.email });
-            if (error) throw error;
-            showMessage('Email update initiated. Please check your new email for confirmation.');
+            if (error) {
+                if (error.message.includes('429') || error.message.includes('rate limit')) {
+                    throw new Error('Terlalu banyak permintaan. Silakan tunggu beberapa saat dan coba lagi.');
+                }
+                throw error;
+            }
+            setLastUpdateTime(Date.now());
+            showMessage('Permintaan update email berhasil. Silakan cek email baru Anda untuk konfirmasi.');
             setIsEmailModalOpen(false);
+            await fetchUser();
         } catch (error) {
             showMessage('Error: ' + error.message, 'error');
         } finally {

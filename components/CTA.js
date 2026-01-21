@@ -56,16 +56,16 @@ const CTA = ({ data = {} }) => {
         <p className="mx-4 text-lg font-semibold text-white mt-4">
           {ctaData.cta_subtitle}
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8 px-4">
           <button
             onClick={handleWhatsAppClick}
-            className="px-8 py-5 text-xl font-bold text-slate-700 bg-white md:rounded-full hover:bg-gray-100 transition-colors duration-300 shadow-lg"
+            className="px-8 py-5 text-xl font-bold text-slate-700 bg-white rounded-2xl md:rounded-full hover:bg-gray-100 transition-colors duration-300 shadow-lg max-w-md mx-auto sm:mx-0 w-full sm:w-auto"
           >
             <span>{ctaData.cta_button_text}</span>
           </button>
           <button
             onClick={handlePortfolioClick}
-            className="px-8 py-5 text-xl font-bold text-slate-700 bg-white md:rounded-full hover:bg-gray-100 transition-colors duration-300 shadow-lg"
+            className="px-8 py-5 text-xl font-bold text-slate-700 bg-white rounded-2xl md:rounded-full hover:bg-gray-100 transition-colors duration-300 shadow-lg max-w-md mx-auto sm:mx-0 w-full sm:w-auto"
           >
             <span>{ctaData.cta_button_portfolio_text}</span>
           </button>
