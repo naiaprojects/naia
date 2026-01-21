@@ -25,11 +25,13 @@ export default function SettingsPage() {
 
   // Hero State
   const [heroContent, setHeroContent] = useState(null);
-  const [heroFormData, setHeroFormData] = useState({ title: '', background_image: '', right_image: '' });
+  const [heroFormData, setHeroFormData] = useState({ title_id: '', title_en: '', background_image: '', right_image: '' });
+  const [heroLangTab, setHeroLangTab] = useState('id');
   const [features, setFeatures] = useState([]);
   const [isFeatureModalOpen, setIsFeatureModalOpen] = useState(false);
   const [editFeature, setEditFeature] = useState(null);
-  const [featureFormData, setFeatureFormData] = useState({ title: '', description: '', icon_url: '', position: 0, is_active: true });
+  const [featureFormData, setFeatureFormData] = useState({ title_id: '', title_en: '', description_id: '', description_en: '', icon_url: '', position: 0, is_active: true });
+  const [featureLangTab, setFeatureLangTab] = useState('id');
 
   // Navigation State
   const [navItems, setNavItems] = useState([]);
@@ -93,7 +95,8 @@ export default function SettingsPage() {
       if (heroRes.data) {
         setHeroContent(heroRes.data);
         setHeroFormData({
-          title: heroRes.data.title,
+          title_id: heroRes.data.title_id || heroRes.data.title || '',
+          title_en: heroRes.data.title_en || heroRes.data.title || '',
           background_image: heroRes.data.background_image,
           right_image: heroRes.data.right_image
         });
@@ -209,8 +212,8 @@ export default function SettingsPage() {
     showMessage('Feature deleted');
   };
 
-  const openCreateFeatureModal = () => { setEditFeature(null); setFeatureFormData({ title: '', description: '', icon_url: '', position: features.length + 1, is_active: true }); setIsFeatureModalOpen(true); };
-  const openEditFeatureModal = (item) => { setEditFeature(item); setFeatureFormData(item); setIsFeatureModalOpen(true); };
+  const openCreateFeatureModal = () => { setEditFeature(null); setFeatureFormData({ title_id: '', title_en: '', description_id: '', description_en: '', icon_url: '', position: features.length + 1, is_active: true }); setFeatureLangTab('id'); setIsFeatureModalOpen(true); };
+  const openEditFeatureModal = (item) => { setEditFeature(item); setFeatureFormData({ title_id: item.title_id || item.title || '', title_en: item.title_en || item.title || '', description_id: item.description_id || item.description || '', description_en: item.description_en || item.description || '', icon_url: item.icon_url, position: item.position, is_active: item.is_active }); setFeatureLangTab('id'); setIsFeatureModalOpen(true); };
   const closeFeatureModal = () => setIsFeatureModalOpen(false);
 
   // Navigation handlers
@@ -391,13 +394,6 @@ export default function SettingsPage() {
                 <div className="grid gap-8">
                   {/* Helper Component for Inputs */}
                   {[
-                    {
-                      section: 'Hero Section', keys: [
-                        { key: 'hero.title', label: 'Hero Title', type: 'text' },
-                        { key: 'hero.subtitle', label: 'Hero Subtitle', type: 'textarea' },
-                        { key: 'hero.cta', label: 'Hero Button Text', type: 'text' }
-                      ]
-                    },
                     {
                       section: 'CTA Section', keys: [
                         { key: 'cta.title', label: 'CTA Title', type: 'text' },
@@ -684,8 +680,36 @@ export default function SettingsPage() {
           {/* Hero Content */}
           {activeTab === 'hero' && (
             <form onSubmit={handleHeroSubmit} className="space-y-6">
-              <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-4">Hero Banner Content</h2>
-              <FormInput label="Headline Title" value={heroFormData.title} onChange={(v) => setHeroFormData({ ...heroFormData, title: v })} required />
+              <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+                <h2 className="text-xl font-bold text-slate-800">Hero Banner Content</h2>
+                <div className="flex bg-slate-100 p-1 rounded-lg">
+                  <button
+                    type="button"
+                    onClick={() => setHeroLangTab('id')}
+                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${heroLangTab === 'id' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-900/50 hover:text-slate-900'}`}
+                  >
+                    🇮🇩 Bahasa
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setHeroLangTab('en')}
+                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${heroLangTab === 'en' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-900/50 hover:text-slate-900'}`}
+                  >
+                    🇬🇧 English
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Headline Title ({heroLangTab === 'id' ? 'Bahasa Indonesia' : 'English'})</label>
+                <input
+                  type="text"
+                  value={heroLangTab === 'id' ? heroFormData.title_id : heroFormData.title_en}
+                  onChange={(e) => setHeroFormData({ ...heroFormData, [heroLangTab === 'id' ? 'title_id' : 'title_en']: e.target.value })}
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
+                  placeholder={`Enter headline in ${heroLangTab === 'id' ? 'Bahasa Indonesia' : 'English'}...`}
+                  required
+                />
+              </div>
               <div className="grid md:grid-cols-2 gap-6">
                 <FileUploader
                   label="Background Image/Lottie"
@@ -819,8 +843,44 @@ export default function SettingsPage() {
       {isFeatureModalOpen && (
         <Modal title={editFeature ? 'Edit Feature' : 'Add Feature'} onClose={closeFeatureModal}>
           <form onSubmit={handleFeatureSubmit} className="space-y-4">
-            <FormInput label="Title" value={featureFormData.title} onChange={(v) => setFeatureFormData({ ...featureFormData, title: v })} required />
-            <FormTextarea label="Description" value={featureFormData.description} onChange={(v) => setFeatureFormData({ ...featureFormData, description: v })} rows={3} required />
+            <div className="flex bg-slate-100 p-1 rounded-lg mb-4">
+              <button
+                type="button"
+                onClick={() => setFeatureLangTab('id')}
+                className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all flex-1 ${featureLangTab === 'id' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-900/50 hover:text-slate-900'}`}
+              >
+                🇮🇩 Bahasa
+              </button>
+              <button
+                type="button"
+                onClick={() => setFeatureLangTab('en')}
+                className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all flex-1 ${featureLangTab === 'en' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-900/50 hover:text-slate-900'}`}
+              >
+                🇬🇧 English
+              </button>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Title ({featureLangTab === 'id' ? 'Bahasa Indonesia' : 'English'})</label>
+              <input
+                type="text"
+                value={featureLangTab === 'id' ? featureFormData.title_id : featureFormData.title_en}
+                onChange={(e) => setFeatureFormData({ ...featureFormData, [featureLangTab === 'id' ? 'title_id' : 'title_en']: e.target.value })}
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
+                placeholder={`Enter title in ${featureLangTab === 'id' ? 'Bahasa Indonesia' : 'English'}...`}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Description ({featureLangTab === 'id' ? 'Bahasa Indonesia' : 'English'})</label>
+              <textarea
+                value={featureLangTab === 'id' ? featureFormData.description_id : featureFormData.description_en}
+                onChange={(e) => setFeatureFormData({ ...featureFormData, [featureLangTab === 'id' ? 'description_id' : 'description_en']: e.target.value })}
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
+                rows={3}
+                placeholder={`Enter description in ${featureLangTab === 'id' ? 'Bahasa Indonesia' : 'English'}...`}
+                required
+              />
+            </div>
             <FormInput label="Icon URL" value={featureFormData.icon_url} onChange={(v) => setFeatureFormData({ ...featureFormData, icon_url: v })} placeholder="https://" />
             <div className="grid grid-cols-2 gap-4">
               <FormInput label="Position" type="number" value={featureFormData.position} onChange={(v) => setFeatureFormData({ ...featureFormData, position: parseInt(v) })} required />
