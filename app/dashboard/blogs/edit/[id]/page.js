@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import LogoPathAnimation from '@/components/LogoPathAnimation';
 import TiptapEditor from '@/components/TiptapEditor';
+import FileUploader from '@/components/FileUploader';
 import { generateSlug, calculateReadingTime, extractExcerpt } from '@/lib/blog-utils';
 
 export default function EditArticlePage() {
@@ -318,26 +319,14 @@ export default function EditArticlePage() {
 
                             {/* Featured Image */}
                             <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-6">
-                                <h3 className="text-sm font-semibold text-slate-900 mb-4">Gambar Unggulan</h3>
-                                {formData.featured_image_url && (
-                                    <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
-                                        <img
-                                            src={formData.featured_image_url}
-                                            alt="Featured"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-                                )}
-                                <input
-                                    type="url"
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                                <FileUploader
+                                    bucket="articles"
+                                    folder=""
+                                    label="Gambar Unggulan"
                                     value={formData.featured_image_url}
-                                    onChange={(e) => setFormData({ ...formData, featured_image_url: e.target.value })}
-                                    placeholder="https://example.com/image.jpg"
+                                    onChange={(url) => setFormData({ ...formData, featured_image_url: url })}
+                                    helperText="Upload gambar untuk artikel (PNG, JPG, max 5MB)"
                                 />
-                                <p className="mt-2 text-xs text-slate-500">
-                                    Masukkan URL gambar unggulan
-                                </p>
                             </div>
 
                             {/* SEO Settings */}
