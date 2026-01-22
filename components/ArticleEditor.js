@@ -32,7 +32,7 @@ export default function ArticleEditor({ article }) {
         meta_title: '',
         meta_description: '',
         meta_keywords: '',
-        author: 'Agus Triana',
+        author_name: 'Agus Triana',
     });
 
     const showMessage = (text, type = 'success') => {
@@ -55,7 +55,7 @@ export default function ArticleEditor({ article }) {
                 meta_title: article.meta_title || '',
                 meta_description: article.meta_description || '',
                 meta_keywords: article.meta_keywords || '',
-                author: article.author || 'Agus Triana',
+                author_name: article.author_name || 'Agus Triana',
             });
         }
     }, [article]);
@@ -355,8 +355,8 @@ export default function ArticleEditor({ article }) {
                                     <input
                                         type="text"
                                         className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                                        value={formData.author}
-                                        onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                                        value={formData.author_name}
+                                        onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
                                         placeholder="Nama penulis"
                                     />
                                 </div>
