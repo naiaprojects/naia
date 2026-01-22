@@ -5,69 +5,16 @@ import { createClient } from '@/lib/supabase-client';
 import { useRouter } from 'next/navigation';
 import Breadcrumb from '@/components/Breadcrumb';
 import LogoPathAnimation from '@/components/LogoPathAnimation';
-import dynamic from 'next/dynamic';
-import 'react-quill/dist/quill.snow.css';
-
-// Import React Quill secara dynamic untuk menghindari SSR issues
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export default function PagesManagementPage() {
     const supabase = createClient();
     const router = useRouter();
 
-    // Data State
     const [pages, setPages] = useState([]);
     const [loading, setLoading] = useState(true);
-
-    // UI State
     const [viewMode, setViewMode] = useState('grid');
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editPage, setEditPage] = useState(null);
     const [message, setMessage] = useState({ text: '', type: '' });
-    const [saving, setSaving] = useState(false);
-    const [isTranslating, setIsTranslating] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-
-    const [activeLangTab, setActiveLangTab] = useState('id'); // 'id' or 'en'
-    const [formData, setFormData] = useState({
-        slug: '',
-        title: '',
-        content: '',
-        title_en: '',
-        content_en: '',
-        meta_title: '',
-        meta_description: '',
-        is_active: true
-    });
-
-    // Konfigurasi toolbar editor
-    const editorModules = {
-        toolbar: [
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-            [{ 'font': [] }],
-            [{ 'size': ['small', false, 'large', 'huge'] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'color': [] }, { 'background': [] }],
-            [{ 'script': 'sub' }, { 'script': 'super' }],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            [{ 'indent': '-1' }, { 'indent': '+1' }],
-            [{ 'align': [] }],
-            ['blockquote', 'code-block'],
-            ['link', 'image', 'video'],
-            ['clean']
-        ]
-    };
-
-    const editorFormats = [
-        'header', 'font', 'size',
-        'bold', 'italic', 'underline', 'strike',
-        'color', 'background',
-        'script',
-        'list', 'bullet', 'indent',
-        'align',
-        'blockquote', 'code-block',
-        'link', 'image', 'video'
-    ];
 
     useEffect(() => {
         checkAuthAndFetchData();
@@ -105,114 +52,6 @@ export default function PagesManagementPage() {
         setTimeout(() => setMessage({ text: '', type: '' }), 3000);
     };
 
-    const generateSlug = (title) => {
-        return title
-            .toLowerCase()
-            .replace(/[^a-z0-9 -]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
-            .trim();
-    };
-
-    const handleTitleChange = (value) => {
-        const slug = editPage ? formData.slug : generateSlug(value);
-        setFormData({
-            ...formData,
-            title: value,
-            slug: slug
-        });
-    };
-
-    const handleAutoTranslate = async () => {
-        if (!formData.title && !formData.content) {
-            showMessage('Please fill in Indonesian content first', 'error');
-            return;
-        }
-
-        if (!confirm('This will overwrite current English content. Continue?')) return;
-
-        setIsTranslating(true);
-        try {
-            // Translate Title
-            let translatedTitle = formData.title_en;
-            if (formData.title) {
-                const res = await fetch('/api/translate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: formData.title })
-                });
-                const data = await res.json();
-                if (data.text) translatedTitle = data.text;
-            }
-
-            // Translate Content
-            let translatedContent = formData.content_en;
-            if (formData.content) {
-                const res = await fetch('/api/translate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: formData.content })
-                });
-                const data = await res.json();
-                if (data.text) translatedContent = data.text;
-            }
-
-            setFormData(prev => ({
-                ...prev,
-                title_en: translatedTitle,
-                content_en: translatedContent
-            }));
-            showMessage('Auto translation complete! Please review.');
-        } catch (error) {
-            console.error('Translation error:', error);
-            showMessage('Failed to translate', 'error');
-        } finally {
-            setIsTranslating(false);
-        }
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setSaving(true);
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                showMessage('Error: You must be logged in to save changes', 'error');
-                return;
-            }
-
-            const dataToSave = {
-                ...formData,
-                updated_at: new Date().toISOString()
-            };
-
-            if (editPage) {
-                const { error } = await supabase
-                    .from('pages')
-                    .update(dataToSave)
-                    .eq('id', editPage.id);
-                if (error) throw error;
-                showMessage('Page updated successfully!');
-            } else {
-                const { error } = await supabase
-                    .from('pages')
-                    .insert([dataToSave]);
-                if (error) throw error;
-                showMessage('Page added successfully!');
-            }
-
-            closeModal();
-            fetchData();
-            await fetch('/api/revalidate', { method: 'POST' });
-            router.refresh();
-        } catch (error) {
-            console.error('Error saving page:', error);
-            showMessage('Error: ' + error.message, 'error');
-        } finally {
-            setSaving(false);
-        }
-    };
-
     const handleDelete = async (id) => {
         if (!confirm('Are you sure you want to delete this page?')) return;
         try {
@@ -236,43 +75,6 @@ export default function PagesManagementPage() {
         }
     };
 
-    const openCreateModal = () => {
-        setEditPage(null);
-        setActiveLangTab('id');
-        setFormData({
-            slug: '',
-            title: '',
-            content: '',
-            title_en: '',
-            content_en: '',
-            meta_title: '',
-            meta_description: '',
-            is_active: true
-        });
-        setIsModalOpen(true);
-    };
-
-    const openEditModal = (page) => {
-        setEditPage(page);
-        setActiveLangTab('id');
-        setFormData({
-            slug: page.slug,
-            title: page.title,
-            content: page.content,
-            title_en: page.title_en || '',
-            content_en: page.content_en || '',
-            meta_title: page.meta_title || '',
-            meta_description: page.meta_description || '',
-            is_active: page.is_active
-        });
-        setIsModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setEditPage(null);
-    };
-
     const filteredPages = pages.filter(page =>
         page.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         page.slug.toLowerCase().includes(searchTerm.toLowerCase())
@@ -290,7 +92,6 @@ export default function PagesManagementPage() {
         <div className="p-4 lg:p-8">
             <div className="space-y-6">
 
-                {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <Breadcrumb />
@@ -306,10 +107,7 @@ export default function PagesManagementPage() {
                     </button>
                 </div>
 
-                {/* Controls Section */}
                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between">
-
-                    {/* Search & View Toggle */}
                     <div className="flex w-full gap-3">
                         <div className="relative flex-1">
                             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -342,7 +140,6 @@ export default function PagesManagementPage() {
                     </div>
                 </div>
 
-                {/* Message Toast */}
                 {message.text && (
                     <div className={`fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-2xl z-50 text-white font-medium animate-fade-in-up ${message.type === 'error' ? 'bg-red-500' : 'bg-slate-900'
                         }`}>
@@ -350,7 +147,6 @@ export default function PagesManagementPage() {
                     </div>
                 )}
 
-                {/* Content Area */}
                 {viewMode === 'grid' ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up">
                         {filteredPages.map((page) => (
@@ -396,7 +192,6 @@ export default function PagesManagementPage() {
                                 </div>
                             </div>
                         ))}
-                        {/* Empty State Helper */}
                         {filteredPages.length === 0 && (
                             <div className="col-span-full py-12 flex flex-col items-center justify-center text-slate-400">
                                 <svg className="w-16 h-16 mb-4 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -406,7 +201,6 @@ export default function PagesManagementPage() {
                     </div>
                 ) : (
                     <>
-                        {/* Mobile Card View */}
                         <div className="lg:hidden space-y-3 animate-fade-in-up">
                             {filteredPages.map((page) => (
                                 <div
@@ -443,7 +237,7 @@ export default function PagesManagementPage() {
                                             View
                                         </a>
                                         <button
-                                            onClick={() => openEditModal(page)}
+                                            onClick={() => router.push(`/dashboard/pages/edit/${page.id}`)}
                                             className="flex-1 py-2.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition flex items-center justify-center gap-1 border-l border-slate-100"
                                         >
                                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
@@ -467,7 +261,6 @@ export default function PagesManagementPage() {
                             )}
                         </div>
 
-                        {/* Desktop Table View */}
                         <div className="hidden lg:block bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden animate-fade-in-up">
                             <div className="overflow-x-auto w-full">
                                 <table className="w-full text-left">
@@ -503,7 +296,7 @@ export default function PagesManagementPage() {
                                                         <a href={`/pages/${page.slug}`} target="_blank" rel="noopener noreferrer" className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-blue-600 transition">
                                                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                                         </a>
-                                                        <button onClick={() => openEditModal(page)} className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition hover:text-primary">
+                                                        <button onClick={() => router.push(`/dashboard/pages/edit/${page.id}`)} className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition hover:text-primary">
                                                             Edit
                                                         </button>
                                                         <button onClick={() => handleDelete(page.id)} className="p-2 hover:bg-red-50 rounded-lg text-red-500 transition">
@@ -521,228 +314,6 @@ export default function PagesManagementPage() {
                 )}
 
             </div>
-
-            {/* Modal - Full Screen for Editor */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-all duration-300">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[95vh] flex flex-col animate-fade-in-up overflow-hidden">
-
-                        {/* Modal Header */}
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
-                            <div>
-                                <h3 className="text-xl font-bold text-slate-800">
-                                    {editPage ? 'Edit Page' : 'Add New Page'}
-                                </h3>
-                                <p className="text-sm text-slate-500">Edit your page content below</p>
-                            </div>
-                            <button onClick={closeModal} className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
-                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
-                        </div>
-
-                        {/* Modal Body - Scrollable */}
-                        <div className="flex-1 overflow-y-auto p-6 md:p-8">
-                            <form onSubmit={handleSubmit} id="pageForm" className="space-y-8">
-                                {/* Language Tabs */}
-                                <div className="flex gap-1 p-1 bg-slate-100 rounded-xl w-fit mb-6">
-                                    <button
-                                        type="button"
-                                        onClick={() => setActiveLangTab('id')}
-                                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeLangTab === 'id'
-                                            ? 'bg-white text-slate-800 shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-700'
-                                            }`}
-                                    >
-                                        🇮🇩 Bahasa Indonesia
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setActiveLangTab('en')}
-                                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeLangTab === 'en'
-                                            ? 'bg-white text-slate-800 shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-700'
-                                            }`}
-                                    >
-                                        🇬🇧 English (Optional)
-                                    </button>
-                                </div>
-
-                                {activeLangTab === 'en' && (
-                                    <div className="mb-6 -mt-4">
-                                        <button
-                                            type="button"
-                                            onClick={handleAutoTranslate}
-                                            disabled={isTranslating}
-                                            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-bold hover:bg-indigo-100 transition disabled:opacity-50"
-                                        >
-                                            {isTranslating ? (
-                                                <>
-                                                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                                    Translating...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-                                                    ✨ Auto Translate from Indonesia
-                                                </>
-                                            )}
-                                        </button>
-                                        <p className="text-xs text-slate-400 mt-2">
-                                            Tip: Fill in Indonesian content first, then click this to auto-generate English content.
-                                        </p>
-                                    </div>
-                                )}
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-2">
-                                                {activeLangTab === 'id' ? 'Judul Halaman' : 'Page Title (English)'}
-                                                {activeLangTab === 'id' && <span className="text-red-500">*</span>}
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={activeLangTab === 'id' ? formData.title : formData.title_en}
-                                                onChange={(e) => {
-                                                    if (activeLangTab === 'id') {
-                                                        handleTitleChange(e.target.value);
-                                                    } else {
-                                                        setFormData({ ...formData, title_en: e.target.value });
-                                                    }
-                                                }}
-                                                required={activeLangTab === 'id'}
-                                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all font-medium text-lg"
-                                                placeholder={activeLangTab === 'id' ? "e.g. Tentang Kami" : "e.g. About Us"}
-                                            />
-                                        </div>
-
-                                        {/* Slug & SEO only visible on ID tab to keep it simple */}
-                                        {activeLangTab === 'id' && (
-                                            <div>
-                                                <label className="block text-sm font-bold text-slate-700 mb-2">URL Slug <span className="text-red-500">*</span></label>
-                                                <div className="flex items-center">
-                                                    <span className="bg-slate-100 border border-r-0 border-slate-200 px-3 py-3 rounded-l-xl text-slate-500 text-sm font-medium">/pages/</span>
-                                                    <input
-                                                        type="text"
-                                                        value={formData.slug}
-                                                        onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                                        required
-                                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-r-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all font-medium"
-                                                        placeholder="contact-us"
-                                                    />
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {activeLangTab === 'id' && (
-                                        <div className="bg-amber-50 rounded-xl p-5 border border-amber-100 space-y-3">
-                                            <h4 className="font-bold text-amber-800 text-sm uppercase tracking-wide flex items-center gap-2">
-                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                                                SEO Metadata
-                                            </h4>
-                                            <div>
-                                                <label className="block text-xs font-bold text-amber-800 mb-1">Meta Title</label>
-                                                <input
-                                                    type="text"
-                                                    value={formData.meta_title}
-                                                    onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
-                                                    className="w-full px-3 py-2 bg-white border border-amber-200 rounded-lg text-sm focus:outline-none focus:border-amber-400"
-                                                    placeholder="Custom Title for SEO"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-amber-800 mb-1">Meta Description</label>
-                                                <textarea
-                                                    value={formData.meta_description}
-                                                    onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
-                                                    rows="2"
-                                                    className="w-full px-3 py-2 bg-white border border-amber-200 rounded-lg text-sm focus:outline-none focus:border-amber-400"
-                                                    placeholder="Short description for Google search results..."
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-3">
-                                        {activeLangTab === 'id' ? 'Konten Halaman' : 'Page Content (English)'}
-                                    </label>
-                                    <div className="prose-editor border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                                        <ReactQuill
-                                            key={activeLangTab} // CRITICAL FIX: Forces component to re-render completely when tab changes
-                                            theme="snow"
-                                            value={activeLangTab === 'id' ? formData.content : formData.content_en}
-                                            onChange={(value) => {
-                                                // Prevent empty updates during switching
-                                                if (activeLangTab === 'id') {
-                                                    setFormData(prev => ({ ...prev, content: value }));
-                                                } else {
-                                                    setFormData(prev => ({ ...prev, content_en: value }));
-                                                }
-                                            }}
-                                            modules={editorModules}
-                                            formats={editorFormats}
-                                            placeholder={activeLangTab === 'id' ? "Tulis konten menarik di sini..." : "Write amazing content here..."}
-                                            className="bg-white min-h-[400px]"
-                                            style={{ height: '500px' }}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center pt-2">
-                                    <div className="relative inline-block w-12 h-6 transition duration-200 ease-in-out">
-                                        <input
-                                            type="checkbox"
-                                            id="page-status-toggle"
-                                            checked={formData.is_active}
-                                            onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                                            className="opacity-0 w-0 h-0 peer"
-                                        />
-                                        <label
-                                            htmlFor="page-status-toggle"
-                                            className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-full transition-colors duration-300 ${formData.is_active ? 'bg-slate-900' : 'bg-slate-300'
-                                                } before:content-[''] before:absolute before:left-1 before:bottom-1 before:bg-white before:w-4 before:h-4 before:rounded-full before:transition-transform before:duration-300 ${formData.is_active ? 'before:translate-x-6' : 'before:translate-x-0'
-                                                }`}
-                                        ></label>
-                                    </div>
-                                    <label htmlFor="page-status-toggle" className="ml-3 text-sm font-bold text-slate-700 cursor-pointer select-none">
-                                        Publish This Page
-                                    </label>
-                                </div>
-
-                            </form>
-                        </div>
-
-                        {/* Modal Footer - Fixed */}
-                        <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 shrink-0">
-                            <button
-                                type="button"
-                                onClick={closeModal}
-                                className="px-6 py-3 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleSubmit}
-                                disabled={saving}
-                                className="px-8 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                                {saving ? (
-                                    <>
-                                        <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                        Saving...
-                                    </>
-                                ) : (
-                                    <>Save Page</>
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
