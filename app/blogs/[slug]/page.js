@@ -410,7 +410,7 @@ export default function ArticleDetailPage() {
 
                             <div className="px-6 pb-6">
                                 <div
-                                    className="prose prose-slate max-w-none"
+                                    className="article-content"
                                     dangerouslySetInnerHTML={{ __html: finalContent }}
                                 />
                             </div>
@@ -597,6 +597,157 @@ export default function ArticleDetailPage() {
                     </div>
                 </div>
             </div>
+
+            <style jsx global>{`
+                .article-content {
+                    font-size: 16px;
+                    line-height: 1.8;
+                    color: #334155;
+                }
+
+                .article-content h1,
+                .article-content h2,
+                .article-content h3,
+                .article-content h4,
+                .article-content h5,
+                .article-content h6 {
+                    font-weight: 700;
+                    color: #0f172a;
+                    margin-top: 2rem;
+                    margin-bottom: 1rem;
+                    line-height: 1.3;
+                }
+
+                .article-content h1 {
+                    font-size: 2.25rem;
+                }
+
+                .article-content h2 {
+                    font-size: 1.875rem;
+                    border-bottom: 2px solid #e2e8f0;
+                    padding-bottom: 0.5rem;
+                }
+
+                .article-content h3 {
+                    font-size: 1.5rem;
+                }
+
+                .article-content h4 {
+                    font-size: 1.25rem;
+                }
+
+                .article-content p {
+                    margin-bottom: 1.25rem;
+                }
+
+                .article-content strong {
+                    font-weight: 600;
+                    color: #1e293b;
+                }
+
+                .article-content em {
+                    font-style: italic;
+                }
+
+                .article-content ul,
+                .article-content ol {
+                    margin-bottom: 1.25rem;
+                    padding-left: 1.5rem;
+                }
+
+                .article-content ul {
+                    list-style-type: disc;
+                }
+
+                .article-content ol {
+                    list-style-type: decimal;
+                }
+
+                .article-content li {
+                    margin-bottom: 0.5rem;
+                }
+
+                .article-content li > ul,
+                .article-content li > ol {
+                    margin-top: 0.5rem;
+                    margin-bottom: 0.5rem;
+                }
+
+                .article-content a {
+                    color: #3b82f6;
+                    text-decoration: underline;
+                }
+
+                .article-content a:hover {
+                    color: #2563eb;
+                }
+
+                .article-content blockquote {
+                    border-left: 4px solid #3b82f6;
+                    padding-left: 1rem;
+                    margin: 1.5rem 0;
+                    font-style: italic;
+                    color: #64748b;
+                    background-color: #f8fafc;
+                    padding: 1rem;
+                    border-radius: 0.5rem;
+                }
+
+                .article-content code {
+                    background-color: #f1f5f9;
+                    padding: 0.2rem 0.4rem;
+                    border-radius: 0.25rem;
+                    font-size: 0.875em;
+                    font-family: 'Courier New', monospace;
+                    color: #e11d48;
+                }
+
+                .article-content pre {
+                    background-color: #1e293b;
+                    color: #e2e8f0;
+                    padding: 1rem;
+                    border-radius: 0.5rem;
+                    overflow-x: auto;
+                    margin-bottom: 1.25rem;
+                }
+
+                .article-content pre code {
+                    background-color: transparent;
+                    padding: 0;
+                    color: #e2e8f0;
+                }
+
+                .article-content img {
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: 0.5rem;
+                    margin: 1.5rem 0;
+                }
+
+                .article-content table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 1.25rem;
+                }
+
+                .article-content table th,
+                .article-content table td {
+                    border: 1px solid #e2e8f0;
+                    padding: 0.75rem;
+                    text-align: left;
+                }
+
+                .article-content table th {
+                    background-color: #f8fafc;
+                    font-weight: 600;
+                }
+
+                .article-content hr {
+                    border: none;
+                    border-top: 2px solid #e2e8f0;
+                    margin: 2rem 0;
+                }
+            `}</style>
         </main>
     );
 }
