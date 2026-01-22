@@ -557,17 +557,23 @@ export default function ArticleDetailPage() {
 
                         {/* Table of Contents */}
                         {tableOfContents.length > 0 && (
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 mb-6 sticky top-4">
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 mb-6">
                                 <h3 className="text-lg font-bold text-slate-900 mb-4">Daftar Isi</h3>
-                                <ul className="space-y-2 text-sm">
+                                <ul className="space-y-2 text-sm max-h-96 overflow-y-auto pr-2">
                                     {tableOfContents.map((item, index) => (
                                         <li key={index} className={item.level === 3 ? 'ml-4' : ''}>
                                             <a
                                                 href={`#${item.id}`}
-                                                className="text-slate-600 hover:text-primary transition"
-                                            >
-                                                {item.text}
-                                            </a>
+                                                className="text-slate-600 hover:text-primary transition block"
+                                                dangerouslySetInnerHTML={{
+                                                    __html: item.text
+                                                        .replace(/&nbsp;/g, ' ')
+                                                        .replace(/&amp;/g, '&')
+                                                        .replace(/&lt;/g, '<')
+                                                        .replace(/&gt;/g, '>')
+                                                        .replace(/&quot;/g, '"')
+                                                }}
+                                            />
                                         </li>
                                     ))}
                                 </ul>
