@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@supabase/ssr": "latest",
+    "@tailwindcss/typography": "^0.5.19",
     "apexcharts": "^5.3.6",
     "jsvectormap": "^1.7.0",
     "lottie-react": "^2.4.1",
