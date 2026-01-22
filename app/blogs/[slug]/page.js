@@ -410,7 +410,7 @@ export default function ArticleDetailPage() {
 
                             <div className="px-6 pb-6">
                                 <div
-                                    className="prose prose-lg max-w-none text-gray-800"
+                                    className="prose prose-lg max-w-none text-gray-800 break-words"
                                     dangerouslySetInnerHTML={{ __html: finalContent }}
                                 />
                             </div>
