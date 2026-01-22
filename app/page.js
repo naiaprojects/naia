@@ -5,18 +5,23 @@ import Portfolio from '@/components/Portfolio';
 import ServicesList from '@/components/ServicesList';
 import Testimoni from '../components/Testimoni';
 import FAQ from '../components/FAQ';
+import BlogSection from '../components/BlogSection';
 import CTA from '../components/CTA';
 import Footer from '../components/Footer';
 
 async function getHomeData() {
   const supabase = createClient();
 
-  const [portfolioRes, servicesRes, testimoniRes, faqRes, settingsRes] = await Promise.all([
+  const [portfolioRes, servicesRes, testimoniRes, faqRes, settingsRes, articlesRes] = await Promise.all([
     supabase.from('portfolio_items').select('*').eq('is_active', true).order('position', { ascending: true }),
     supabase.from('services').select('*').eq('is_active', true).order('created_at', { ascending: true }),
     supabase.from('testimoni_items').select('*').eq('is_active', true).order('position', { ascending: true }),
     supabase.from('faq_items').select('*').eq('is_active', true).order('position', { ascending: true }),
-    supabase.from('site_settings').select('key, value')
+    supabase.from('site_settings').select('key, value'),
+    supabase.from('articles').select(`
+      *,
+      category:categories(id, name, slug)
+    `).eq('status', 'published').order('published_at', { ascending: false }).limit(6)
   ]);
 
   // Transform portfolio data to match expected format
@@ -45,6 +50,7 @@ async function getHomeData() {
     services: servicesRes.data || [],
     testimoni,
     faq: faqRes.data || [],
+    articles: articlesRes.data || [],
     settings
   };
 }
@@ -52,7 +58,7 @@ async function getHomeData() {
 // Homepage uses the default title from root layout (site_title from settings)
 
 export default async function Home() {
-  const { portfolio, services, testimoni, faq, settings } = await getHomeData();
+  const { portfolio, services, testimoni, faq, articles, settings } = await getHomeData();
 
   return (
     <>
@@ -62,6 +68,7 @@ export default async function Home() {
       <ServicesList data={services} />
       <Testimoni data={testimoni} />
       <FAQ data={faq} />
+      <BlogSection data={articles} />
       <CTA data={settings} />
       <Footer />
     </>
