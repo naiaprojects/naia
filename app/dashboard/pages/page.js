@@ -298,7 +298,7 @@ export default function PagesManagementPage() {
                         <p className="text-slate-500 mt-1">Manage static pages and website content</p>
                     </div>
                     <button
-                        onClick={openCreateModal}
+                        onClick={() => router.push('/dashboard/pages/new')}
                         className="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-slate-200 active:scale-95"
                     >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
@@ -386,7 +386,7 @@ export default function PagesManagementPage() {
                                         <a href={`/pages/${page.slug}`} target="_blank" rel="noopener noreferrer" className="p-2 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-blue-500 transition">
                                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                                         </a>
-                                        <button onClick={() => openEditModal(page)} className="p-2 hover:bg-slate-50 rounded-lg text-slate-600 transition hover:text-primary">
+                                        <button onClick={() => router.push(`/dashboard/pages/edit/${page.id}`)} className="p-2 hover:bg-slate-50 rounded-lg text-slate-600 transition hover:text-primary">
                                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                         </button>
                                         <button onClick={() => handleDelete(page.id)} className="p-2 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-500 transition">

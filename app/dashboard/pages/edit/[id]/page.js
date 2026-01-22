@@ -5,31 +5,31 @@ import { createClient } from '@/lib/supabase-client';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import LogoPathAnimation from '@/components/LogoPathAnimation';
-import ArticleEditor from '@/components/ArticleEditor';
+import PageEditor from '@/components/PageEditor';
 
-export default function EditArticlePage() {
+export default function EditPagePage() {
     const supabase = createClient();
     const params = useParams();
     const [loading, setLoading] = useState(true);
-    const [article, setArticle] = useState(null);
+    const [page, setPage] = useState(null);
 
     useEffect(() => {
-        fetchArticle();
+        fetchPage();
     }, [params.id]);
 
-    const fetchArticle = async () => {
+    const fetchPage = async () => {
         setLoading(true);
         try {
             const { data, error } = await supabase
-                .from('articles')
+                .from('pages')
                 .select('*')
                 .eq('id', params.id)
                 .single();
 
             if (error) throw error;
-            setArticle(data);
+            setPage(data);
         } catch (error) {
-            console.error('Error fetching article:', error);
+            console.error('Error fetching page:', error);
         } finally {
             setLoading(false);
         }
@@ -48,23 +48,23 @@ export default function EditArticlePage() {
             <div className="px-4 sm:px-6 lg:px-8">
                 <div className="mb-6">
                     <Link
-                        href="/dashboard/blogs"
+                        href="/dashboard/pages"
                         className="inline-flex items-center gap-2 text-primary hover:underline mb-4"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
-                        Kembali ke Artikel
+                        Kembali ke Pages
                     </Link>
                     <h1 className="text-3xl font-bold text-slate-900">
-                        Edit Artikel
+                        Edit Halaman
                     </h1>
                     <p className="text-slate-600 mt-1">
-                        Perbarui artikel Anda
+                        Perbarui halaman Anda
                     </p>
                 </div>
 
-                <ArticleEditor article={article} />
+                <PageEditor page={page} />
             </div>
         </div>
     );
